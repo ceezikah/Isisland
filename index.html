@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>IsIsland - A Ilha da Ísis (Versão Completa)</title>
+<title>IsIsland - A Ilha da Ísis</title>
 <!-- Phaser 3 CDN Otimizado -->
 <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
 <style>
@@ -100,7 +100,6 @@ constructor() {
 super('MasterBootScene');
 }
 preload() {
-// Geração procedural de texturas e assets base para evitar erros de rede ou CORS no Safari antigo
 let graphics = this.make.graphics({ x: 0, y: 0, add: false });
 // Fundo de Céu Principal
 graphics.fillStyle(0x3a86ff, 1);
@@ -112,7 +111,7 @@ graphics.fillStyle(0x38b000, 1);
 graphics.fillEllipse(240, 440, 420, 280);
 graphics.fillStyle(0x70e000, 1);
 graphics.fillEllipse(240, 425, 370, 230);
-graphics.fillStyle(0xfde047, 1); // Areia / Praia
+graphics.fillStyle(0xfde047, 1);
 graphics.fillEllipse(240, 470, 440, 140);
 graphics.generateTexture('tex_isometric_island', 480, 800);
 graphics.clear();
@@ -140,12 +139,12 @@ super('SplashLoaderScene');
 }
 create() {
 this.add.image(240, 427, 'tex_sky');
-let title = this.add.text(240, 320, 'ISLAND', { fontSize: '76px', fontStyle: 'bold', color: '#ffb703' }).setOrigin(0.5);
-let subtitle = this.add.text(240, 390, 'A Ilha Mágica da Ísis', { fontSize: '24px', fontStyle: 'bold', color: '#ffffff' }).setOrigin(0.5);
+this.add.text(240, 320, 'ISLAND', { fontSize: '76px', fontStyle: 'bold', color: '#ffb703' }).setOrigin(0.5);
+this.add.text(240, 390, 'A Ilha Mágica da Ísis', { fontSize: '24px', fontStyle: 'bold', color: '#ffffff' }).setOrigin(0.5);
 let loadingBar = this.add.rectangle(240, 520, 320, 24, 0x000000, 0.4).setOrigin(0.5);
 let progressFill = this.add.rectangle(88, 520, 10, 16, 0x06d6a0).setOrigin(0, 0.5);
 let progress = 0;
-let timer = this.time.addEvent({
+this.time.addEvent({
 delay: 25,
 repeat: 100,
 callback: () => {
@@ -167,7 +166,6 @@ super('MainMenuScene');
 }
 create() {
 this.add.image(240, 427, 'tex_sky');
-// Animações de nuvens
 let c1 = this.add.circle(80, 140, 50, 0xffffff, 0.85);
 let c2 = this.add.circle(400, 210, 70, 0xffffff, 0.85);
 this.tweens.add({
@@ -179,32 +177,24 @@ repeat: -1,
 ease: 'Sine.easeInOut'
 });
 this.add.text(240, 142, 'ISLAND', { fontSize: '72px', fontStyle: 'bold', color: '#7209b7' }).setOrigin(0.5);
-let mainTitle = this.add.text(240, 138, 'ISLAND', { fontSize: '72px', fontStyle: 'bold', color: '#ff0054' }).setOrigin(0.5);
-// Mini ilha central no menu
+this.add.text(240, 138, 'ISLAND', { fontSize: '72px', fontStyle: 'bold', color: '#ff0054' }).setOrigin(0.5);
 this.add.image(240, 440, 'tex_isometric_island').setScale(0.9);
-// Distritos Sazonais na Ilha
 this.createDistrictBadge(240, 330, '👑 Reino da Ísis', 0xf72585);
 this.createDistrictBadge(130, 470, '🎄 Natal', 0x06d6a0);
 this.createDistrictBadge(350, 470, '🐰 Páscoa', 0xff0054);
 this.createDistrictBadge(240, 570, '🎉 Carnaval', 0xffb703);
-// Botão Iniciar Jogo
 let btnStart = this.add.image(240, 690, 'tex_btn_main').setInteractive();
 this.add.text(240, 690, 'JOGAR AGORA', { fontSize: '26px', fontStyle: 'bold', color: '#ffffff' }).setOrigin(0.5);
 btnStart.on('pointerdown', () => {
 this.playAudioFeedback();
 this.scene.start('CharacterCustomizerScene');
 });
-// Botões de Configurações Inferiores
 let btnSettings = this.add.image(140, 785, 'tex_btn_sec').setInteractive();
 this.add.text(140, 785, 'Configurações', { fontSize: '18px', fontStyle: 'bold', color: '#000' }).setOrigin(0.5);
-btnSettings.on('pointerdown', () => {
-this.scene.start('ProfileSettingsScene');
-});
+btnSettings.on('pointerdown', () => this.scene.start('ProfileSettingsScene'));
 let btnEvents = this.add.image(340, 785, 'tex_btn_sec').setInteractive();
 this.add.text(340, 785, 'Eventos', { fontSize: '18px', fontStyle: 'bold', color: '#000' }).setOrigin(0.5);
-btnEvents.on('pointerdown', () => {
-this.scene.start('SeasonalEventsScene');
-});
+btnEvents.on('pointerdown', () => this.scene.start('SeasonalEventsScene'));
 }
 createDistrictBadge(x, y, label, color) {
 let badge = this.add.rectangle(x, y, 130, 42, color, 0.92).setInteractive();
@@ -238,7 +228,6 @@ super('CharacterCustomizerScene');
 create() {
 this.add.rectangle(240, 427, 480, 854, 0xffe5ec);
 this.add.text(240, 50, 'Personalizar Personagem', { fontSize: '26px', fontStyle: 'bold', color: '#d90429' }).setOrigin(0.5);
-// Seletor de Gênero
 let btnMenina = this.add.rectangle(130, 115, 120, 45, gameState.player.gender === 'menina' ? 0xffb703 : 0xffffff).setInteractive();
 btnMenina.setStrokeStyle(3, 0xd90429);
 this.add.text(130, 115, '👧 Menina', { fontSize: '16px', fontStyle: 'bold', color: '#000' }).setOrigin(0.5);
@@ -255,7 +244,6 @@ gameState.player.gender = 'menino';
 btnMenino.setFillStyle(0xffb703);
 btnMenina.setFillStyle(0xffffff);
 });
-// Caixa de Exibição do Avatar
 let avatarBox = this.add.rectangle(240, 260, 200, 210, 0xffffff).setInteractive();
 avatarBox.setStrokeStyle(4, 0xffb703);
 let placeholder = this.add.text(240, 260, 'Avatar\n(Toque para carregar foto)', { fontSize: '14px', align: 'center', color: '#666' }).setOrigin(0.5);
@@ -263,7 +251,6 @@ let btnUpload = this.add.rectangle(150, 395, 150, 45, 0x3a86ff).setInteractive()
 this.add.text(150, 395, 'Carregar Foto', { fontSize: '15px', fontStyle: 'bold', color: '#fff' }).setOrigin(0.5);
 let btnRemove = this.add.rectangle(330, 395, 110, 45, 0xef233c).setInteractive();
 this.add.text(330, 395, 'Remover', { fontSize: '15px', fontStyle: 'bold', color: '#fff' }).setOrigin(0.5);
-// Input de arquivo seguro para iOS 12
 let fileInput = document.createElement('input');
 fileInput.type = 'file';
 fileInput.accept = 'image/*';
@@ -295,7 +282,6 @@ placeholder.setVisible(true);
 gameState.player.avatarPhoto = null;
 fileInput.value = '';
 });
-// Nome do Jogador
 let nameBox = this.add.rectangle(240, 470, 320, 50, 0xffffff).setInteractive();
 nameBox.setStrokeStyle(2, 0xadb5bd);
 let nameTxt = this.add.text(240, 470, gameState.player.name, { fontSize: '20px', fontStyle: 'bold', color: '#000' }).setOrigin(0.5);
@@ -306,7 +292,6 @@ gameState.player.name = n.trim();
 nameTxt.setText(gameState.player.name);
 }
 });
-// Botão Concluir
 let btnOk = this.add.image(240, 765, 'tex_btn_main').setInteractive();
 this.add.text(240, 765, 'SALVAR E ENTRAR', { fontSize: '20px', fontStyle: 'bold', color: '#fff' }).setOrigin(0.5);
 btnOk.on('pointerdown', () => {
@@ -326,16 +311,13 @@ create() {
 this.add.image(240, 427, 'tex_sky');
 this.add.image(240, 440, 'tex_isometric_island').setScale(1.1);
 this.add.text(240, 55, ⁠Bem-vinda, ${gameState.player.name}!⁠, { fontSize: '24px', fontStyle: 'bold', color: '#fff', stroke: '#000', strokeThickness: 4 }).setOrigin(0.5);
-// Nós de Navegação da Ilha
 this.createNode(130, 310, '🍔 Burger Island', 0xf72585, 'MiniGameBurgerScene');
 this.createNode(350, 310, '🍕 Pizza Festival', 0x7209b7, 'MiniGamePizzaScene');
 this.createNode(240, 460, '🍦 Doce Ilha', 0x3a0ca3, 'MiniGameSweetsScene');
 this.createNode(140, 600, '🎄 Natal', 0x06d6a0, 'SeasonalEventsScene');
 this.createNode(340, 600, '🐰 Páscoa', 0xff0054, 'SeasonalEventsScene');
-// Moedas e Experiência no Topo
 this.add.rectangle(240, 105, 300, 36, 0x000000, 0.4).setStrokeStyle(2, 0xffb703);
 this.add.text(240, 105, ⁠🪙 ${gameState.player.coins}   💎 ${gameState.player.gems}   ⭐ Nível ${gameState.player.level}⁠, { fontSize: '15px', fontStyle: 'bold', color: '#ffb703' }).setOrigin(0.5);
-// Voltar ao Menu
 let btnBack = this.add.rectangle(75, 785, 110, 40, 0x222222, 0.9).setInteractive();
 this.add.text(75, 785, '⬅ Menu', { fontSize: '15px', color: '#fff' }).setOrigin(0.5);
 btnBack.on('pointerdown', () => this.scene.start('MainMenuScene'));
