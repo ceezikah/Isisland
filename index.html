@@ -13,6 +13,8 @@
       font-family: 'Arial Rounded MT Bold', 'Helvetica', sans-serif;
       overflow: hidden;
       touch-action: none;
+      -webkit-user-select: none;
+      user-select: none;
     }
     #menu-overlay {
       position: absolute;
@@ -21,15 +23,178 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      background: linear-gradient(180deg, #87CEEB 0%, #98FB98 100%);
+      background: linear-gradient(180deg, #87CEEB 0%, #E0F6FF 100%);
       z-index: 10;
+      transition: opacity 0.5s ease;
     }
     .card {
       background: white;
-      padding: 25px;
-      border-radius: 20px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      padding: 30px 25px;
+      border-radius: 25px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.18);
       text-align: center;
-      max-width: 320px;
+      max-width: 340px;
       width: 85%;
+      border: 4px solid #FFD700;
     }
+    h1 {
+      color: #FF69B4;
+      font-size: 40px;
+      margin: 0 0 10px 0;
+      text-shadow: 2px 2px 0px #FFF0F5;
+    }
+    p {
+      color: #666;
+      font-size: 18px;
+      margin: 0 0 25px 0;
+      line-height: 1.4;
+    }
+    .btn-play {
+      background: linear-gradient(180deg, #4CAF50 0%, #388E3C 100%);
+      color: white;
+      border: none;
+      padding: 16px 45px;
+      font-size: 24px;
+      font-weight: bold;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 6px 0 #1B5E20, 0 10px 20px rgba(0,0,0,0.2);
+      transition: transform 0.1s;
+      font-family: inherit;
+    }
+    .btn-play:active {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 #1B5E20;
+    }
+    #game-container {
+      width: 100vw;
+      height: 100vh;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Tela Inicial (Overlay) -->
+  <div id="menu-overlay">
+    <div class="card">
+      <h1>✨ Isis Land ✨</h1>
+      <p>Bem-vinda ao seu mundo mágico de aprender e brincar!</p>
+      <button class="btn-play" id="start-btn">JOGAR ▶️</button>
+    </div>
+  </div>
+
+  <!-- Container do Phaser -->
+  <div id="game-container"></div>
+
+  <script>
+    // Botão para fechar a tela inicial e entrar no jogo
+    const startBtn = document.getElementById('start-btn');
+    const menuOverlay = document.getElementById('menu-overlay');
+
+    startBtn.addEventListener('click', () => {
+      menuOverlay.style.opacity = '0';
+      setTimeout(() => {
+        menuOverlay.style.display = 'none';
+      }, 500);
+    });
+
+    // Configuração do Phaser 3 otimizada para Safari / iPad Air 1 (Canvas/WebGL leve)
+    const config = {
+      type: Phaser.AUTO,
+      parent: 'game-container',
+      width: window.innerWidth,
+      height: window.innerHeight,
+      backgroundColor: '#87CEEB',
+      physics: {
+        default: 'arcade',
+        arcade: {
+          gravity: { y: 400 },
+          debug: false
+        }
+      },
+      scene: {
+        preload: preload,
+        create: create,
+        update: update
+      }
+    };
+
+    const game = new Phaser.Game(config);
+    let clouds = [];
+    let player;
+
+    function preload() {
+      // Sem assets externos por enquanto para não dar erro de carregamento
+    }
+
+    function create() {
+      const w = this.scale.width;
+      const h = this.scale.height;
+
+      // Sol sorridente no canto
+      this.add.circle(w - 70, 70, 45, 0xFFD700);
+
+      // Nuvens leves feitas via código
+      for (let i = 0; i < 4; i++) {
+        let cloud = this.add.circle(
+          Phaser.Math.Between(50, w - 50),
+          Phaser.Math.Between(60, h / 2 - 40),
+          Phaser.Math.Between(25, 45),
+          0xFFFFFF,
+          0.85
+        );
+        cloud.speed = Phaser.Math.FloatBetween(0.3, 0.9);
+        clouds.push(cloud);
+      }
+
+      // Chão verde da ilha
+      const groundHeight = 90;
+      const ground = this.add.rectangle(w / 2, h - groundHeight / 2, w, groundHeight, 0x4CAF50);
+      this.physics.add.existing(ground, true);
+
+      // Personagem de teste (bolinha mágica rosa que pula ao tocar na tela)
+      player = this.add.circle(w / 2, h - 180, 30, 0xFF69B4);
+      player.setStrokeStyle(4, 0xFFFFFF);
+      this.physics.add.existing(player);
+      player.body.setBounce(0.6);
+      player.body.setCollideWorldBounds(true);
+
+      this.physics.add.collider(player, ground);
+
+      // Texto no topo do cenário
+      this.add.text(w / 2, 50, 'Toque na tela para pular! 🌟', {
+        fontFamily: 'Arial Rounded MT Bold, Helvetica, sans-serif',
+        fontSize: '26px',
+        color: '#ffffff',
+        stroke: '#FF69B4',
+        strokeThickness: 5
+      }).setOrigin(0.5);
+
+      // Interação de toque / clique
+      this.input.on('pointerdown', (pointer) => {
+        player.body.setVelocityY(-380);
+        if (pointer.x < player.x) {
+          player.body.setVelocityX(-160);
+        } else {
+          player.body.setVelocityX(160);
+        }
+      });
+
+      // Ajuste automático se girar a tela do iPad ou celular
+      window.addEventListener('resize', () => {
+        game.scale.resize(window.innerWidth, window.innerHeight);
+      });
+    }
+
+    function update() {
+      const w = this.scale.width;
+      clouds.forEach(cloud => {
+        cloud.x += cloud.speed;
+        if (cloud.x > w + 60) {
+          cloud.x = -60;
+        }
+      });
+    }
+  </script>
+</body>
+</html>
