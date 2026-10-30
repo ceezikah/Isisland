@@ -3,2252 +3,418 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>ISISLAND</title>
+<title>IsIsland - A Ilha da Ísis</title>
+<!-- Phaser 3 CDN estável e otimizado para mobile -->
+<script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
 <style>
-￼ {
+* {
 box-sizing: border-box;
--webkit-tap-highlight-color: transparent;
--webkit-touch-callout: none;
--webkit-user-select: none;
 user-select: none;
+-webkit-user-select: none;
+-webkit-touch-callout: none;
 }
-html, body {
+body {
 margin: 0;
 padding: 0;
-width: 100%;
-height: 100%;
-overflow: hidden;
-background-color: #29B6F6;
-font-family: "Arial Rounded MT Bold", "Helvetica Rounded", "Comic Sans MS", Arial, sans-serif;
-touch-action: none;
-}
-#main-canvas {
-position: absolute;
-top: 0;
-left: 0;
-width: 100%;
-height: 100%;
-z-index: 1;
-display: block;
-}
-#ui-layer {
-position: absolute;
-top: 0;
-left: 0;
-width: 100%;
-height: 100%;
-z-index: 10;
-pointer-events: none;
-}
-/* =========================================================
-TELA 1: MENU INICIAL (IDÊNTICO AO MOCKUP CARTOON)
-========================================================= */
-#start-hud {
-position: absolute;
-top: 0;
-left: 0;
-width: 100%;
-height: 100%;
-pointer-events: none;
-}
-.menu-buttons-right {
-position: absolute;
-right: 3%;
-bottom: 8%;
-display: -webkit-box;
-display: -webkit-flex;
+background: #050b14;
 display: flex;
--webkit-box-orient: vertical;
--webkit-flex-direction: column;
-flex-direction: column;
-pointer-events: auto;
-z-index: 15;
-width: 185px;
-}
-.cartoon-btn-orange {
-background: -webkit-linear-gradient(top, #FFD54F 0%, #FFB300 50%, #FB8C00 100%);
-background: linear-gradient(180deg, #FFD54F 0%, #FFB300 50%, #FB8C00 100%);
-color: #FFFFFF;
-border: 3.5px solid #222222;
-border-radius: 18px;
-padding: 13px 16px;
-font-size: 21px;
-font-weight: 900;
-font-family: inherit;
-cursor: pointer;
-box-shadow: 0 5px 0 #222222, inset 0 3px 0 rgba(255,255,255,0.65);
-text-shadow: -2px -2px 0 #222, 2px -2px 0 #222, -2px 2px 0 #222, 2px 2px 0 #222, 0 3px 0 #222;
-margin-bottom: 10px;
-text-align: center;
-outline: none;
-}
-.cartoon-btn-orange:active {
--webkit-transform: translateY(4px);
-transform: translateY(4px);
-box-shadow: 0 1px 0 #222222;
-}
-.cartoon-btn-blue {
-background: -webkit-linear-gradient(top, #4FC3F7 0%, #039BE5 55%, #0277BD 100%);
-background: linear-gradient(180deg, #4FC3F7 0%, #039BE5 55%, #0277BD 100%);
-color: #FFFFFF;
-border: 3px solid #222222;
-border-radius: 14px;
-padding: 9px 12px;
-font-size: 15px;
-font-weight: 900;
-font-family: inherit;
-cursor: pointer;
-box-shadow: 0 4px 0 #222222, inset 0 2px 0 rgba(255,255,255,0.55);
-text-shadow: -1.5px -1.5px 0 #222, 1.5px -1.5px 0 #222, -1.5px 1.5px 0 #222, 1.5px 1.5px 0 #222;
-margin-bottom: 8px;
-text-align: center;
-outline: none;
-}
-.cartoon-btn-blue:active {
--webkit-transform: translateY(3px);
-transform: translateY(3px);
-box-shadow: 0 1px 0 #222222;
-}
-/* =========================================================
-TELA 2: QUEM VAI BRINCAR? (FUNDO ROSA COM CORAÇÕES)
-========================================================= */
-#profile-screen {
-display: none;
-position: absolute;
-top: 0;
-left: 0;
-width: 100%;
-height: 100%;
-background: -webkit-linear-gradient(top, #FFB2C9 0%, #FFD6E4 100%);
-background: linear-gradient(180deg, #FFB2C9 0%, #FFD6E4 100%);
-pointer-events: auto;
--webkit-box-align: center;
--webkit-align-items: center;
-align-items: center;
--webkit-box-pack: center;
--webkit-justify-content: center;
 justify-content: center;
-padding: 12px;
+align-items: center;
+height: 100vh;
 overflow: hidden;
+font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
-.bg-hearts-layer {
-position: absolute;
-top: 0;
-left: 0;
+#game-container {
 width: 100%;
+max-width: 480px;
 height: 100%;
-pointer-events: none;
-z-index: 0;
-}
-.profile-card {
+max-height: 854px;
+box-shadow: 0 0 25px rgba(0, 0, 0, 0.9);
 position: relative;
-z-index: 2;
-background: #FFFFFF;
-border: 4px solid #222222;
-border-radius: 24px;
-padding: 18px 20px;
-width: 94%;
-max-width: 470px;
-box-shadow: 8px 10px 0 #EC407A, 8px 10px 0 3px #222222;
-text-align: center;
-}
-.profile-title {
-color: #222222;
-font-size: 26px;
-font-weight: 900;
-margin: 0 0 12px 0;
-}
-.profile-middle-row {
-display: -webkit-box;
-display: -webkit-flex;
-display: flex;
--webkit-box-align: center;
--webkit-align-items: center;
-align-items: center;
--webkit-box-pack: center;
--webkit-justify-content: center;
-justify-content: center;
-margin-bottom: 12px;
-}
-.gender-pill {
-border: 3px solid #222222;
-border-radius: 14px;
-padding: 9px 12px;
-font-size: 16px;
-font-weight: 900;
-font-family: inherit;
-cursor: pointer;
-box-shadow: 0 4px 0 #222222;
-outline: none;
-min-width: 105px;
-}
-.gender-pill.girl {
-background: #FF80AB;
-color: #FFFFFF;
-text-shadow: -1.5px -1.5px 0 #222, 1.5px -1.5px 0 #222, -1.5px 1.5px 0 #222, 1.5px 1.5px 0 #222;
-}
-.gender-pill.boy {
-background: #4FC3F7;
-color: #FFFFFF;
-text-shadow: -1.5px -1.5px 0 #222, 1.5px -1.5px 0 #222, -1.5px 1.5px 0 #222, 1.5px 1.5px 0 #222;
-}
-.gender-pill.inactive {
-opacity: 0.55;
-box-shadow: 0 2px 0 #222222;
-}
-.gender-pill.selected {
-opacity: 1;
--webkit-transform: scale(1.06);
-transform: scale(1.06);
-box-shadow: 0 5px 0 #222222;
-}
-.avatar-frame-box {
-width: 118px;
-height: 118px;
-border: 3.5px solid #222222;
-border-radius: 16px;
-background: #FFF5F8;
-margin: 0 12px;
-overflow: hidden;
-position: relative;
-display: -webkit-box;
-display: -webkit-flex;
-display: flex;
--webkit-box-align: center;
--webkit-align-items: center;
-align-items: center;
--webkit-box-pack: center;
--webkit-justify-content: center;
-justify-content: center;
-box-shadow: inset 0 3px 6px rgba(0,0,0,0.12);
-}
-.avatar-frame-box canvas, .avatar-frame-box img {
-width: 100%;
-height: 100%;
-object-fit: cover;
-display: block;
-}
-.photo-actions-row {
-display: -webkit-box;
-display: -webkit-flex;
-display: flex;
--webkit-box-pack: center;
--webkit-justify-content: center;
-justify-content: center;
-margin-bottom: 12px;
-}
-.small-action-btn {
-border: 2.5px solid #222222;
-border-radius: 10px;
-padding: 7px 14px;
-font-size: 14px;
-font-weight: 900;
-color: #FFFFFF;
-cursor: pointer;
-margin: 0 6px;
-font-family: inherit;
-box-shadow: 0 3px 0 #222222;
-text-shadow: -1px -1px 0 #222, 1px -1px 0 #222, -1px 1px 0 #222, 1px 1px 0 #222;
-outline: none;
-}
-.small-action-btn.blue { background: #29B6F6; }
-.small-action-btn.red { background: #EF5350; }
-.small-action-btn:active {
--webkit-transform: translateY(2px);
-transform: translateY(2px);
-box-shadow: 0 1px 0 #222222;
-}
-.cartoon-input {
-width: 90%;
-padding: 10px 14px;
-border: 3px solid #222222;
-border-radius: 14px;
-font-size: 20px;
-font-weight: 900;
-text-align: center;
-color: #222222;
-background: #FFFFFF;
-margin-bottom: 12px;
-font-family: inherit;
-outline: none;
--webkit-user-select: text;
-user-select: text;
-}
-.green-ok-btn {
-width: 65%;
-background: -webkit-linear-gradient(top, #81C784 0%, #4CAF50 55%, #388E3C 100%);
-background: linear-gradient(180deg, #81C784 0%, #4CAF50 55%, #388E3C 100%);
-color: #FFFFFF;
-border: 3.5px solid #222222;
-border-radius: 16px;
-padding: 10px 20px;
-font-size: 24px;
-font-weight: 900;
-cursor: pointer;
-font-family: inherit;
-box-shadow: 0 5px 0 #222222, inset 0 3px 0 rgba(255,255,255,0.5);
-text-shadow: -2px -2px 0 #222, 2px -2px 0 #222, -2px 2px 0 #222, 2px 2px 0 #222;
-outline: none;
-}
-.green-ok-btn:active {
--webkit-transform: translateY(4px);
-transform: translateY(4px);
-box-shadow: 0 1px 0 #222222;
-}
-/* =========================================================
-TELA 3: GUARDA-ROUPA (COMPATÍVEL COM iOS 12 SEM ASPECT-RATIO)
-========================================================= */
-#wardrobe-screen {
-display: none;
-position: absolute;
-top: 0;
-left: 0;
-width: 100%;
-height: 100%;
-background: -webkit-linear-gradient(top, #E1BEE7 0%, #CE93D8 100%);
-background: linear-gradient(180deg, #E1BEE7 0%, #CE93D8 100%);
-pointer-events: auto;
-padding: 10px;
--webkit-box-orient: vertical;
--webkit-flex-direction: column;
-flex-direction: column;
--webkit-box-align: center;
--webkit-align-items: center;
-align-items: center;
--webkit-box-pack: center;
--webkit-justify-content: center;
-justify-content: center;
-}
-.wardrobe-main-wrap {
-display: -webkit-box;
-display: -webkit-flex;
-display: flex;
--webkit-box-orient: horizontal;
--webkit-flex-direction: row;
-flex-direction: row;
--webkit-box-align: stretch;
--webkit-align-items: stretch;
-align-items: stretch;
--webkit-box-pack: center;
--webkit-justify-content: center;
-justify-content: center;
-width: 98%;
-max-width: 780px;
-height: 76%;
-max-height: 400px;
-}
-.wardrobe-left-card {
-background: #FFFFFF;
-border: 3.5px solid #222222;
-border-radius: 20px;
-width: 35%;
-margin-right: 12px;
-padding: 10px;
-display: -webkit-box;
-display: -webkit-flex;
-display: flex;
--webkit-box-orient: vertical;
--webkit-flex-direction: column;
-flex-direction: column;
--webkit-box-align: center;
--webkit-align-items: center;
-align-items: center;
--webkit-box-pack: justify;
--webkit-justify-content: space-between;
-justify-content: space-between;
-box-shadow: 0 6px 0 rgba(0,0,0,0.2);
-}
-.wardrobe-player-name {
-font-size: 22px;
-font-weight: 900;
-color: #222222;
-margin: 2px 0;
-}
-.wardrobe-avatar-stage {
-width: 100%;
--webkit-box-flex: 1;
--webkit-flex: 1;
-flex: 1;
-background: #F8F0FB;
-border: 2.5px solid #E1BEE7;
-border-radius: 14px;
-display: -webkit-box;
-display: -webkit-flex;
-display: flex;
--webkit-box-align: center;
--webkit-align-items: center;
-align-items: center;
--webkit-box-pack: center;
--webkit-justify-content: center;
-justify-content: center;
-overflow: hidden;
-}
-#wardrobe-avatar-canvas {
-max-width: 100%;
-max-height: 100%;
-display: block;
-}
-.wardrobe-right-area {
-width: 63%;
-display: -webkit-box;
-display: -webkit-flex;
-display: flex;
--webkit-box-orient: vertical;
--webkit-flex-direction: column;
-flex-direction: column;
-}
-.wardrobe-tabs-bar {
-display: -webkit-box;
-display: -webkit-flex;
-display: flex;
--webkit-box-orient: horizontal;
--webkit-flex-direction: row;
-flex-direction: row;
-margin-bottom: -3px;
-z-index: 3;
-padding: 0 4px;
-}
-.w-tab-btn {
--webkit-box-flex: 1;
--webkit-flex: 1;
-flex: 1;
-background: #D1C4E9;
-border: 3px solid #222222;
-border-bottom: 3px solid #222222;
-border-radius: 14px 14px 0 0;
-padding: 5px 2px;
-margin: 0 2px;
-cursor: pointer;
-display: -webkit-box;
-display: -webkit-flex;
-display: flex;
--webkit-box-orient: vertical;
--webkit-flex-direction: column;
-flex-direction: column;
--webkit-box-align: center;
--webkit-align-items: center;
-align-items: center;
-font-family: inherit;
-font-size: 11px;
-font-weight: 900;
-color: #222222;
-outline: none;
-}
-.w-tab-btn.active {
-background: #FFFFFF;
-border-bottom-color: #FFFFFF;
-padding-bottom: 8px;
-}
-.w-tab-btn canvas {
-width: 28px;
-height: 22px;
-margin-bottom: 2px;
-}
-.wardrobe-grid-box {
--webkit-box-flex: 1;
--webkit-flex: 1;
-flex: 1;
-background: #FFFFFF;
-border: 3.5px solid #222222;
-border-radius: 0 16px 16px 16px;
-padding: 8px;
-display: -webkit-box;
-display: -webkit-flex;
-display: flex;
--webkit-flex-wrap: wrap;
-flex-wrap: wrap;
--webkit-align-content: flex-start;
-align-content: flex-start;
--webkit-box-pack: justify;
--webkit-justify-content: space-between;
-justify-content: space-between;
-overflow-y: auto;
--webkit-overflow-scrolling: touch;
-box-shadow: 0 6px 0 rgba(0,0,0,0.2);
-}
-.clothing-cell {
-width: 18.4%;
-height: 76px;
-border: 3px solid #222222;
-border-radius: 12px;
-margin-bottom: 8px;
-cursor: pointer;
-position: relative;
-display: -webkit-box;
-display: -webkit-flex;
-display: flex;
--webkit-box-orient: vertical;
--webkit-flex-direction: column;
-flex-direction: column;
--webkit-box-align: center;
--webkit-align-items: center;
-align-items: center;
--webkit-box-pack: center;
--webkit-justify-content: center;
-justify-content: center;
-box-shadow: 0 3px 0 #222222, inset 0 2px 0 rgba(255,255,255,0.45);
-padding: 2px;
-}
-.clothing-cell.equipped {
-border-color: #FFEB3B;
-box-shadow: 0 0 0 3px #222222, 0 4px 10px rgba(0,0,0,0.35);
--webkit-transform: scale(1.05);
-transform: scale(1.05);
-z-index: 2;
-}
-.clothing-cell canvas {
-width: 48px;
-height: 42px;
-display: block;
-}
-.clothing-cell span {
-font-size: 9px;
-font-weight: 900;
-color: #222222;
-background: rgba(255,255,255,0.85);
-border-radius: 5px;
-padding: 1px 3px;
-max-width: 95%;
-overflow: hidden;
-text-overflow: ellipsis;
-white-space: nowrap;
-margin-top: 2px;
-}
-.create-avatar-btn {
-margin-top: 10px;
-background: -webkit-linear-gradient(top, #AB47BC 0%, #8E24AA 55%, #6A1B9A 100%);
-background: linear-gradient(180deg, #AB47BC 0%, #8E24AA 55%, #6A1B9A 100%);
-color: #FFFFFF;
-border: 3.5px solid #222222;
-border-radius: 16px;
-padding: 10px 36px;
-font-size: 20px;
-font-weight: 900;
-font-family: inherit;
-cursor: pointer;
-box-shadow: 0 5px 0 #222222, inset 0 2px 0 rgba(255,255,255,0.45);
-text-shadow: -2px -2px 0 #222, 2px -2px 0 #222, -2px 2px 0 #222, 2px 2px 0 #222;
-outline: none;
-}
-.create-avatar-btn:active {
--webkit-transform: translateY(4px);
-transform: translateY(4px);
-box-shadow: 0 1px 0 #222222;
-}
-/* =========================================================
-TELA 4: HUD DE GAMEPLAY NA ILHA (BOTÃO SAIR E TROCA ROUPA)
-========================================================= */
-#world-hud {
-display: none;
-position: absolute;
-top: 0;
-left: 0;
-width: 100%;
-height: 100%;
-pointer-events: none;
-}
-.world-top-bar {
-position: absolute;
-top: 10px;
-left: 12px;
-right: 12px;
-display: -webkit-box;
-display: -webkit-flex;
-display: flex;
--webkit-box-pack: justify;
--webkit-justify-content: space-between;
-justify-content: space-between;
--webkit-box-align: center;
--webkit-align-items: center;
-align-items: center;
-pointer-events: none;
-}
-.hud-small-btn {
-pointer-events: auto;
-background: -webkit-linear-gradient(top, #FF7043 0%, #E53935 100%);
-background: linear-gradient(180deg, #FF7043 0%, #E53935 100%);
-color: #FFFFFF;
-border: 3px solid #222222;
-border-radius: 14px;
-padding: 8px 14px;
-font-size: 14px;
-font-weight: 900;
-font-family: inherit;
-cursor: pointer;
-box-shadow: 0 4px 0 #222222;
-text-shadow: -1.5px -1.5px 0 #222, 1.5px -1.5px 0 #222, -1.5px 1.5px 0 #222, 1.5px 1.5px 0 #222;
-outline: none;
-}
-.hud-small-btn.purple {
-background: -webkit-linear-gradient(top, #BA68C8 0%, #8E24AA 100%);
-background: linear-gradient(180deg, #BA68C8 0%, #8E24AA 100%);
-}
-/* =========================================================
-AJUSTE RESPONSIVO RETRATO (IPHONE / IPAD VERTICAL)
-========================================================= */
-@media (max-width: 680px) and (orientation: portrait) {
-.menu-buttons-right {
-right: 4%;
-bottom: 5%;
-width: 165px;
-}
-.cartoon-btn-orange { font-size: 18px; padding: 11px 12px; }
-.cartoon-btn-blue { font-size: 13px; padding: 8px 10px; }
-.wardrobe-main-wrap {
--webkit-box-orient: vertical;
--webkit-flex-direction: column;
-flex-direction: column;
-height: 83%;
-max-height: none;
-}
-.wardrobe-left-card {
-width: 100%;
-height: 37%;
-margin-right: 0;
-margin-bottom: 8px;
-}
-.wardrobe-right-area {
-width: 100%;
-height: 61%;
-}
-.clothing-cell {
-width: 18.4%;
-height: 62px;
-}
+background: #87CEEB;
 }
 </style>
 </head>
 <body>
-<canvas id="main-canvas"></canvas>
-<div id="ui-layer">
-<!-- TELA 1: HUD INICIAL -->
-<div id="start-hud">
-<div class="menu-buttons-right">
-<button type="button" class="cartoon-btn-orange" id="btn-start-game">Start Game</button>
-<button type="button" class="cartoon-btn-blue" id="btn-quality">Quality: HIGH</button>
-<button type="button" class="cartoon-btn-blue" id="btn-sound">Sound: ON</button>
-</div>
-</div>
-<!-- TELA 2: QUEM VAI BRINCAR? -->
-<div id="profile-screen">
-<canvas class="bg-hearts-layer" id="hearts-canvas"></canvas>
-<div class="profile-card">
-<h2 class="profile-title">Quem vai brincar?</h2>
-<div class="profile-middle-row">
-<button type="button" class="gender-pill girl selected" id="btn-girl">Menina 👧</button>
-<div class="avatar-frame-box" id="photo-box">
-<canvas id="portrait-canvas" width="120" height="120"></canvas>
-<img id="uploaded-photo-img" style="display:none;" alt="Foto">
-</div>
-<button type="button" class="gender-pill boy inactive" id="btn-boy">Menino 👦</button>
-</div>
-<input type="file" id="photo-file-input" accept="image/*" style="display:none;">
-<div class="photo-actions-row">
-<button type="button" class="small-action-btn blue" id="btn-load-photo">Carregar Foto</button>
-<button type="button" class="small-action-btn red" id="btn-remove-photo">Remover</button>
-</div>
-<input type="text" class="cartoon-input" id="player-name-input" value="Isis" maxlength="16" placeholder="Digite o nome...">
-
-
-<button type="button" class="green-ok-btn" id="btn-profile-ok">OK</button>
-</div>
-</div>
-<!-- TELA 3: GUARDA-ROUPA (50 OPÇÕES COM ÍCONES DESENHADOS) -->
-<div id="wardrobe-screen">
-<div class="wardrobe-main-wrap">
-<div class="wardrobe-left-card">
-<div class="wardrobe-player-name" id="wardrobe-name-label">Isis</div>
-<div class="wardrobe-avatar-stage">
-<canvas id="wardrobe-avatar-canvas" width="180" height="230"></canvas>
-</div>
-</div>
-<div class="wardrobe-right-area">
-<div class="wardrobe-tabs-bar">
-<button type="button" class="w-tab-btn active" data-cat="hats">
-<canvas width="36" height="28" id="tab-icon-hats"></canvas>
-<span>Chapéus</span>
-</button>
-<button type="button" class="w-tab-btn" data-cat="tops">
-<canvas width="36" height="28" id="tab-icon-tops"></canvas>
-<span>Cima</span>
-</button>
-<button type="button" class="w-tab-btn" data-cat="bottoms">
-<canvas width="36" height="28" id="tab-icon-bottoms"></canvas>
-<span>Baixo</span>
-</button>
-<button type="button" class="w-tab-btn" data-cat="shoes">
-<canvas width="36" height="28" id="tab-icon-shoes"></canvas>
-<span>Calçados</span>
-</button>
-<button type="button" class="w-tab-btn" data-cat="acc">
-<canvas width="36" height="28" id="tab-icon-acc"></canvas>
-<span>Acessórios</span>
-</button>
-</div>
-<div class="wardrobe-grid-box" id="wardrobe-grid"></div>
-</div>
-</div>
-<button type="button" class="create-avatar-btn" id="btn-create-avatar">CRIAR AVATAR</button>
-</div>
-<!-- TELA 4: HUD DA ILHA (BOTÃO SAIR E ROUPAS) -->
-<div id="world-hud">
-<div class="world-top-bar">
-<button type="button" class="hud-small-btn" id="btn-exit-island">⬅ Sair</button>
-<button type="button" class="hud-small-btn purple" id="btn-open-wardrobe">👕 Roupas</button>
-</div>
-</div>
-</div>
+<div id="game-container"></div>
 <script>
-// ============================================================================
-// MOTOR 100% COMPATÍVEL COM iOS 12 (iPad Air Gen 1) E ANDROID / DESKTOP
-// Zero funções modernas que quebram o Safari antigo (sem roundRect nativo,
-// sem ctx.ellipse nativo, sem aspect-ratio CSS, sem sintaxe ES6 bloqueante).
-// ============================================================================
-(function() {
-"use strict";
-// Helper universal para desenhar Elipses (100% compatível com iOS 12)
-function drawOvalPath(ctx, cx, cy, rx, ry) {
-ctx.save();
-ctx.translate(cx, cy);
-ctx.scale(rx, ry);
-ctx.beginPath();
-ctx.arc(0, 0, 1, 0, Math.PI * 2, false);
-ctx.restore();
+// Configuração principal do Phaser otimizada para iOS 12 e Safari mobile
+const config = {
+type: Phaser.AUTO,
+parent: 'game-container',
+width: 480,
+height: 854,
+backgroundColor: '#70d6ff',
+scale: {
+mode: Phaser.Scale.FIT,
+autoCenter: Phaser.Scale.CENTER_BOTH
+},
+scene: [BootScene, MenuScene, AvatarCustomizerScene, IslandWorldScene, KitchenMinigameScene]
+};
+// Estado Global do Jogador e Jogo
+let gameData = {
+quality: 'HIGH',
+soundEnabled: true,
+avatar: {
+name: 'Ísis',
+gender: 'menina', // 'menina' ou 'menino'
+photo: null,
+hat: 'Coroa Ouro',
+top: 'Camiseta Azul',
+bottom: 'Tênis Rosa'
 }
-function fillStrokeOval(ctx, cx, cy, rx, ry, fillColor, strokeColor, lineWidth) {
-drawOvalPath(ctx, cx, cy, rx, ry);
-if (fillColor) {
-ctx.fillStyle = fillColor;
-ctx.fill();
+};
+// -------------------------------------------------------------------------
+// 1. BOOT SCENE: Pré-carregamento de texturas procedurais e ativos visuais
+// -------------------------------------------------------------------------
+class BootScene extends Phaser.Scene {
+constructor() {
+super('BootScene');
 }
-if (strokeColor) {
-ctx.strokeStyle = strokeColor;
-ctx.lineWidth = lineWidth || 3;
-ctx.stroke();
+preload() {
+// Criar texturas gráficas rica e detalhadas programaticamente
+let g = this.make.graphics({ x: 0, y: 0, add: false });
+// Céu Gradiente Vibrante
+g.fillStyle(0x4cc9f0, 1);
+g.fillRect(0, 0, 480, 854);
+g.generateTexture('sky_bg', 480, 854);
+g.clear();
+// Ilha Principal Estilo Isométrico Colorido (Cooking Island Style)
+g.fillStyle(0x38b000, 1);
+g.fillEllipse(240, 450, 400, 260);
+g.fillStyle(0x70e000, 1);
+g.fillEllipse(240, 440, 360, 220);
+g.fillStyle(0xffe6a7, 1); // Areia da praia
+g.fillEllipse(240, 480, 420, 120);
+g.generateTexture('isometric_island', 480, 800);
+g.clear();
+// Botão Primário Arredondado Estilizado
+g.fillStyle(0xf72585, 1);
+g.fillRoundedRect(0, 0, 260, 65, 20);
+g.generateTexture('btn_main', 260, 65);
+g.clear();
+// Botão Secundário
+g.fillStyle(0x4361ee, 1);
+g.fillRoundedRect(0, 0, 180, 50, 15);
+g.generateTexture('btn_sec', 180, 50);
+g.clear();
+}
+create() {
+this.scene.start('MenuScene');
 }
 }
-// Helper universal para retângulos arredondados compatível com iOS 12
-function fillStrokeRoundRect(ctx, x, y, w, h, r, fillColor, strokeColor, lineWidth) {
-if (w < 2 * r) r = w / 2;
-if (h < 2 * r) r = h / 2;
-if (r < 0) r = 0;
-ctx.beginPath();
-ctx.moveTo(x + r, y);
-ctx.arcTo(x + w, y, x + w, y + h, r);
-ctx.arcTo(x + w, y + h, x, y + h, r);
-ctx.arcTo(x, y + h, x, y, r);
-ctx.arcTo(x, y, x + w, y, r);
-ctx.closePath();
-if (fillColor) {
-ctx.fillStyle = fillColor;
-ctx.fill();
+// -------------------------------------------------------------------------
+// 2. MENU SCENE: Tela Inicial com Animações, Áudio e Navegação
+// -------------------------------------------------------------------------
+class MenuScene extends Phaser.Scene {
+constructor() {
+super('MenuScene');
 }
-if (strokeColor) {
-ctx.strokeStyle = strokeColor;
-ctx.lineWidth = lineWidth || 3;
-ctx.stroke();
+create() {
+this.add.image(240, 427, 'sky_bg');
+// Nuvens decorativas flutuantes
+let cloud1 = this.add.circle(90, 120, 45, 0xffffff, 0.9);
+let cloud2 = this.add.circle(390, 180, 65, 0xffffff, 0.9);
+this.tweens.add({
+targets: [cloud1, cloud2],
+x: '+= 35',
+duration: 3500,
+yoyo: true,
+repeat: -1,
+ease: 'Sine.easeInOut'
+});
+// Título Estilizado "ISLAND" com Efeito de Sombra 3D
+this.add.text(240, 142, 'ISLAND', { fontSize: '72px', fontStyle: 'bold', color: '#7209b7' }).setOrigin(0.5);
+let title = this.add.text(240, 138, 'ISLAND', { fontSize: '72px', fontStyle: 'bold', color: '#ffb703' }).setOrigin(0.5);
+this.tweens.add({
+targets: title,
+scale: 1.04,
+duration: 1000,
+yoyo: true,
+repeat: -1
+});
+// Ilha Central com Placas de Eventos Sazonais
+this.add.image(240, 430, 'isometric_island').setScale(0.95);
+this.createSeasonalBadge(240, 330, '👑 Reino da Ísis', 0xf72585);
+this.createSeasonalBadge(130, 460, '🎄 Natal', 0x06d6a0);
+this.createSeasonalBadge(350, 460, '🐰 Páscoa', 0xff0054);
+this.createSeasonalBadge(240, 560, '🎉 Carnaval', 0xffb703);
+// Botão Start Game
+let btnStart = this.add.image(240, 680, 'btn_main').setInteractive();
+this.add.text(240, 680, 'START GAME', { fontSize: '26px', fontStyle: 'bold', color: '#ffffff' }).setOrigin(0.5);
+btnStart.on('pointerdown', () => {
+this.playClickSound();
+this.scene.start('AvatarCustomizerScene');
+});
+// Controles de Configuração (Qualidade e Som)
+let btnQuality = this.add.image(140, 770, 'btn_sec').setInteractive();
+let txtQuality = this.add.text(140, 770, ⁠Quality: ${gameData.quality}⁠, { fontSize: '16px', fontStyle: 'bold', color: '#fff' }).setOrigin(0.5);
+btnQuality.on('pointerdown', () => {
+this.playClickSound();
+gameData.quality = gameData.quality === 'HIGH' ? 'LOW' : 'HIGH';
+txtQuality.setText(⁠Quality: ${gameData.quality}⁠);
+});
+let btnSound = this.add.image(340, 770, 'btn_sec').setInteractive();
+let txtSound = this.add.text(340, 770, ⁠Sound: ${gameData.soundEnabled ? 'ON' : 'OFF'}⁠, { fontSize: '16px', fontStyle: 'bold', color: '#fff' }).setOrigin(0.5);
+btnSound.on('pointerdown', () => {
+gameData.soundEnabled = !gameData.soundEnabled;
+txtSound.setText(⁠Sound: ${gameData.soundEnabled ? 'ON' : 'OFF'}⁠);
+if (gameData.soundEnabled) this.playClickSound();
+});
 }
+createSeasonalBadge(x, y, label, color) {
+let badge = this.add.rectangle(x, y, 120, 42, color, 0.95).setInteractive();
+badge.setStrokeStyle(3, 0xffffff);
+this.add.text(x, y, label, { fontSize: '15px', fontStyle: 'bold', color: '#ffffff' }).setOrigin(0.5);
+this.tweens.add({
+targets: badge,
+y: y - 5,
+duration: 900,
+yoyo: true,
+repeat: -1
+});
 }
-// Helper de texto com contorno estilo Cartoon
-function drawCartoonText(ctx, text, x, y, fontSize, fillColor, outlineColor, outlineWidth, align) {
-ctx.save();
-ctx.font = "900 " + Math.round(fontSize) + "px 'Arial Rounded MT Bold', 'Helvetica Rounded', Arial, sans-serif";
-ctx.textAlign = align || "center";
-ctx.textBaseline = "middle";
-ctx.lineJoin = "round";
-ctx.miterLimit = 2;
-if (outlineWidth !== 0) {
-ctx.strokeStyle = outlineColor || "#222222";
-ctx.lineWidth = outlineWidth || 5;
-ctx.strokeText(text, x, y);
-}
-ctx.fillStyle = fillColor || "#FFFFFF";
-ctx.fillText(text, x, y);
-ctx.restore();
-}
-// Efeitos sonoros leves via WebAudio (compatível com webkitAudioContext do iOS 12)
-var AudioCtx = window.AudioContext || window.webkitAudioContext;
-var audioCtx = null;
-function playPopSound(freq, duration) {
-if (!State.sound) return;
+playClickSound() {
+if (!gameData.soundEnabled) return;
 try {
-if (!audioCtx && AudioCtx) audioCtx = new AudioCtx();
-if (!audioCtx) return;
-if (audioCtx.state === "suspended" && audioCtx.resume) audioCtx.resume();
-var osc = audioCtx.createOscillator();
-var gain = audioCtx.createGain();
-osc.type = "sine";
-var now = audioCtx.currentTime;
-osc.frequency.setValueAtTime(freq || 520, now);
-osc.frequency.exponentialRampToValueAtTime((freq || 520) * 1.35, now + (duration || 0.08));
-gain.gain.setValueAtTime(0.10, now);
-gain.gain.exponentialRampToValueAtTime(0.001, now + (duration || 0.08));
+let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+let osc = audioCtx.createOscillator();
+let gain = audioCtx.createGain();
+osc.type = 'triangle';
+osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.1);
+gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
 osc.connect(gain);
 gain.connect(audioCtx.destination);
-if (osc.start) osc.start(0); else osc.noteOn(0);
-if (osc.stop) osc.stop(now + (duration || 0.08)); else osc.noteOff(now + (duration || 0.08));
+osc.start();
+osc.stop(audioCtx.currentTime + 0.15);
 } catch (e) {}
 }
-// ==========================================================================
-// ESTADO GLOBAL DO JOGO
-// ==========================================================================
-var State = {
-screen: "MENU", // "MENU", "PROFILE", "WARDROBE", "WORLD"
-quality: "HIGH",
-sound: true,
-playerName: "Isis",
-gender: "F", // "F" ou "M"
-skinColor: "#FFCCAA",
-hairColor: "#5D4037",
-hasCustomPhoto: false,
-activeCategory: "hats",
-equipped: {
-hats: 0,
-tops: 0,
-bottoms: 0,
-shoes: -1,
-acc: -1
-},
-transition: {
-active: false,
-type: "CLOUD",
-progress: 0,
-phase: "IN",
-onMidpoint: null
+}
+// -------------------------------------------------------------------------
+// 3. AVATAR CUSTOMIZER SCENE: Customização, Gênero e Upload de Foto iOS 12
+// -------------------------------------------------------------------------
+class AvatarCustomizerScene extends Phaser.Scene {
+constructor() {
+super('AvatarCustomizerScene');
+}
+create() {
+this.add.rectangle(240, 427, 480, 854, 0xffe5ec);
+this.add.text(240, 50, 'Crie o seu Avatar!', { fontSize: '28px', fontStyle: 'bold', color: '#d90429' }).setOrigin(0.5);
+// Alternador de Gênero (Menina / Menino) corrigido e responsivo
+let btnMenina = this.add.rectangle(130, 115, 120, 45, gameData.avatar.gender === 'menina' ? 0xffb703 : 0xffffff).setInteractive();
+btnMenina.setStrokeStyle(3, 0xd90429);
+let txtMenina = this.add.text(130, 115, '👧 Menina', { fontSize: '16px', fontStyle: 'bold', color: '#000' }).setOrigin(0.5);
+let btnMenino = this.add.rectangle(350, 115, 120, 45, gameData.avatar.gender === 'menino' ? 0xffb703 : 0xffffff).setInteractive();
+btnMenino.setStrokeStyle(3, 0x1d3557);
+let txtMenino = this.add.text(350, 115, '👦 Menino', { fontSize: '16px', fontStyle: 'bold', color: '#000' }).setOrigin(0.5);
+btnMenina.on('pointerdown', () => {
+gameData.avatar.gender = 'menina';
+btnMenina.setFillStyle(0xffb703);
+btnMenino.setFillStyle(0xffffff);
+});
+btnMenino.on('pointerdown', () => {
+gameData.avatar.gender = 'menino';
+btnMenino.setFillStyle(0xffb703);
+btnMenina.setFillStyle(0xffffff);
+});
+// Caixa de Visualização do Avatar
+let avatarBox = this.add.rectangle(240, 260, 200, 210, 0xffffff).setInteractive();
+avatarBox.setStrokeStyle(4, 0xffb703);
+let avatarPlaceholder = this.add.text(240, 260, 'Visual do Avatar\n(Toque para carregar foto)', { fontSize: '14px', align: 'center', color: '#666' }).setOrigin(0.5);
+// Botões de Carregar e Remover Foto
+let btnLoadPhoto = this.add.rectangle(150, 395, 150, 45, 0x3a86ff).setInteractive();
+this.add.text(150, 395, 'Carregar Foto', { fontSize: '15px', fontStyle: 'bold', color: '#fff' }).setOrigin(0.5);
+let btnRemovePhoto = this.add.rectangle(330, 395, 110, 45, 0xef233c).setInteractive();
+this.add.text(330, 395, 'Remover', { fontSize: '15px', fontStyle: 'bold', color: '#fff' }).setOrigin(0.5);
+// Input de Arquivo Nativo Otimizado para Safari / iOS 12
+let fileInput = document.createElement('input');
+fileInput.type = 'file';
+fileInput.accept = 'image/*';
+fileInput.style.display = 'none';
+document.body.appendChild(fileInput);
+fileInput.onchange = (e) => {
+let file = e.target.files[0];
+if (file) {
+let reader = new FileReader();
+reader.onload = (event) => {
+let textureKey = 'uploaded_avatar_img';
+if (this.textures.exists(textureKey)) {
+this.textures.remove(textureKey);
+}
+this.load.image(textureKey, event.target.result);
+this.load.once('complete', () => {
+avatarPlaceholder.setVisible(false);
+if (this.userAvatarSprite) this.userAvatarSprite.destroy();
+this.userAvatarSprite = this.add.image(240, 260, textureKey).setDisplaySize(160, 175);
+gameData.avatar.photo = textureKey;
+});
+this.load.start();
+};
+reader.readAsDataURL(file);
 }
 };
-var SLOT_BG_COLORS = [
-"#FFE082", "#81D4FA", "#FFAB91", "#CE93D8", "#A5D6A7",
-"#80CBC4", "#F48FB1", "#FFF59D", "#90CAF9", "#BCAAA4"
-];
-function getCatalog(gender) {
-var isF = (gender === "F");
-return {
-hats: [
-{ name: "Laço Rosa", shape: "bow", color: "#FF80AB" },
-{ name: "Boné Azul", shape: "cap", color: "#29B6F6" },
-{ name: "Coroa Ouro", shape: "crown", color: "#FFCA28" },
-{ name: "Tiara Gatinho", shape: "ears", color: "#AB47BC" },
-{ name: "Chapéu Praia", shape: "sunhat", color: "#FFE082" },
-{ name: "Gorro Neve", shape: "beanie", color: "#EF5350" },
-{ name: "Cartola Festa", shape: "tophat", color: "#37474F" },
-{ name: "Viseira Sol", shape: "visor", color: "#26A69A" },
-{ name: "Boina Charmosa", shape: "beret", color: "#EC407A" },
-{ name: "Chapéu Caipira", shape: "straw", color: "#FFB74D" }
-],
-tops: [
-{ name: isF ? "Blusinha Rosa" : "Camiseta Rosa", shape: "tee", color: "#FF80AB" },
-{ name: "Camiseta Azul", shape: "tee", color: "#29B6F6" },
-{ name: isF ? "Regatinha" : "Regata Sol", shape: "tank", color: "#EF5350" },
-{ name: "Blusa Estrela", shape: "star_tee", color: "#FFCA28" },
-{ name: "Moletom Roxo", shape: "long", color: "#AB47BC" },
-{ name: "Jaqueta Jeans", shape: "jacket", color: "#42A5F5" },
-{ name: isF ? "Cropped Verde" : "Polo Verde", shape: "crop", color: "#66BB6A" },
-{ name: "Bata Laranja", shape: "tee", color: "#FF7043" },
-{ name: "Colete Festa", shape: "jacket", color: "#26A69A" },
-{ name: "Casaco Neve", shape: "long", color: "#EC407A" }
-],
-bottoms: [
-{ name: isF ? "Shortinho Rosa" : "Bermuda Rosa", shape: "shorts", color: "#F48FB1" },
-{ name: "Short Jeans", shape: "shorts", color: "#42A5F5" },
-{ name: isF ? "Saia Rodada" : "Bermuda Surf", shape: "skirt", color: "#AB47BC" },
-{ name: isF ? "Vestido Festa" : "Jardineira", shape: "dress", color: "#FF7043" },
-{ name: "Calça Jeans", shape: "pants", color: "#1E88E5" },
-{ name: isF ? "Saia Amarela" : "Short Esporte", shape: "skirt", color: "#FFCA28" },
-{ name: "Calça Verde", shape: "pants", color: "#66BB6A" },
-{ name: "Short Praia", shape: "shorts", color: "#26A69A" },
-{ name: isF ? "Legging Roxa" : "Calça Moletom", shape: "pants", color: "#8E24AA" },
-{ name: "Bermuda Marrom", shape: "shorts", color: "#8D6E63" }
-],
-shoes: [
-{ name: "Tênis Azul", shape: "sneaker", color: "#42A5F5" },
-{ name: "Tênis Rosa", shape: "sneaker", color: "#FF80AB" },
-{ name: "Botinha Marrom", shape: "boot", color: "#8D6E63" },
-{ name: "Chinelinho", shape: "slipper", color: "#FFCA28" },
-{ name: "Sapatilha", shape: "flat", color: "#EC407A" },
-{ name: "Bota Chuva", shape: "boot", color: "#66BB6A" },
-{ name: "Tênis Led", shape: "sneaker", color: "#AB47BC" },
-{ name: "Sandália", shape: "slipper", color: "#FF7043" },
-{ name: "Coturno", shape: "boot", color: "#37474F" },
-{ name: "Pantufa Fofa", shape: "flat", color: "#29B6F6" }
-],
-acc: [
-{ name: "Óculos Sol", shape: "sunglasses", color: "#37474F" },
-{ name: "Máscara Carnaval", shape: "mask", color: "#26A69A" },
-{ name: "Óculos Redondo", shape: "round_glasses", color: "#29B6F6" },
-{ name: "Colar Pérolas", shape: "necklace", color: "#FFF176" },
-{ name: "Óculos Coração", shape: "heart_glasses", color: "#EC407A" },
-{ name: "Pulseira Vip", shape: "bracelet", color: "#FFCA28" },
-{ name: "Gravata Borboleta", shape: "bowtie", color: "#EF5350" },
-{ name: "Relógio Smart", shape: "bracelet", color: "#42A5F5" },
-{ name: "Máscara Festa", shape: "mask", color: "#AB47BC" },
-{ name: "Estrelinha", shape: "star_badge", color: "#FFEE58" }
-]
-};
-}
-// ==========================================================================
-// DESENHO DOS ÍCONES DE ROUPA NOS QUADRADINHOS DO GUARDA-ROUPA
-// ==========================================================================
-function drawClothingIcon(ctx, w, h, cat, itemObj) {
-ctx.clearRect(0, 0, w, h);
-ctx.save();
-var cx = w / 2;
-var cy = h / 2;
-var col = itemObj.color || "#29B6F6";
-var sh = itemObj.shape;
-ctx.strokeStyle = "#222222";
-ctx.lineWidth = 2.5;
-ctx.lineJoin = "round";
-if (cat === "hats") {
-if (sh === "bow") {
-ctx.fillStyle = col;
-ctx.beginPath();
-ctx.moveTo(cx, cy);
-ctx.lineTo(cx - 14, cy - 9);
-ctx.lineTo(cx - 14, cy + 9);
-ctx.closePath();
-ctx.fill(); ctx.stroke();
-ctx.beginPath();
-ctx.moveTo(cx, cy);
-ctx.lineTo(cx + 14, cy - 9);
-ctx.lineTo(cx + 14, cy + 9);
-ctx.closePath();
-ctx.fill(); ctx.stroke();
-ctx.beginPath();
-ctx.arc(cx, cy, 4.5, 0, Math.PI * 2);
-ctx.fillStyle = "#FFF";
-ctx.fill(); ctx.stroke();
-} else if (sh === "crown") {
-ctx.fillStyle = col;
-ctx.beginPath();
-ctx.moveTo(cx - 14, cy + 8);
-ctx.lineTo(cx - 16, cy - 8);
-ctx.lineTo(cx - 6, cy);
-ctx.lineTo(cx, cy - 11);
-ctx.lineTo(cx + 6, cy);
-ctx.lineTo(cx + 16, cy - 8);
-ctx.lineTo(cx + 14, cy + 8);
-ctx.closePath();
-ctx.fill(); ctx.stroke();
-} else if (sh === "ears") {
-ctx.fillStyle = col;
-ctx.beginPath();
-ctx.arc(cx, cy + 4, 13, Math.PI, 0);
-ctx.stroke();
-ctx.beginPath();
-ctx.moveTo(cx - 13, cy + 2);
-ctx.lineTo(cx - 15, cy - 11);
-ctx.lineTo(cx - 5, cy - 4);
-ctx.closePath();
-ctx.fill(); ctx.stroke();
-ctx.beginPath();
-ctx.moveTo(cx + 13, cy + 2);
-ctx.lineTo(cx + 15, cy - 11);
-ctx.lineTo(cx + 5, cy - 4);
-ctx.closePath();
-ctx.fill(); ctx.stroke();
-} else {
-ctx.fillStyle = col;
-ctx.beginPath();
-ctx.arc(cx - 2, cy + 4, 13, Math.PI, 0);
-ctx.closePath();
-ctx.fill(); ctx.stroke();
-fillStrokeRoundRect(ctx, cx - 16, cy + 2, 34, 6, 3, col, "#222222", 2.5);
-}
-} else if (cat === "tops") {
-ctx.fillStyle = col;
-if (sh === "tank" || sh === "crop") {
-ctx.beginPath();
-ctx.moveTo(cx - 11, cy - 12);
-ctx.lineTo(cx - 6, cy - 12);
-ctx.lineTo(cx - 4, cy - 5);
-ctx.lineTo(cx + 4, cy - 5);
-ctx.lineTo(cx + 6, cy - 12);
-ctx.lineTo(cx + 11, cy - 12);
-ctx.lineTo(cx + 13, cy + 12);
-ctx.lineTo(cx - 13, cy + 12);
-ctx.closePath();
-ctx.fill(); ctx.stroke();
-} else {
-ctx.beginPath();
-ctx.moveTo(cx - 10, cy - 12);
-ctx.lineTo(cx + 10, cy - 12);
-ctx.lineTo(cx + 19, cy - 3);
-ctx.lineTo(cx + 14, cy + 3);
-ctx.lineTo(cx + 11, cy - 1);
-ctx.lineTo(cx + 11, cy + 13);
-ctx.lineTo(cx - 11, cy + 13);
-ctx.lineTo(cx - 11, cy - 1);
-ctx.lineTo(cx - 14, cy + 3);
-ctx.lineTo(cx - 19, cy - 3);
-ctx.closePath();
-ctx.fill(); ctx.stroke();
-if (sh === "star_tee") {
-ctx.fillStyle = "#FFF";
-ctx.beginPath();
-ctx.arc(cx, cy + 1, 4.5, 0, Math.PI * 2);
-ctx.fill(); ctx.stroke();
-}
-}
-} else if (cat === "bottoms") {
-ctx.fillStyle = col;
-if (sh === "skirt" || sh === "dress") {
-ctx.beginPath();
-ctx.moveTo(cx - 11, cy - 10);
-ctx.lineTo(cx + 11, cy - 10);
-ctx.lineTo(cx + 17, cy + 12);
-ctx.lineTo(cx - 17, cy + 12);
-ctx.closePath();
-ctx.fill(); ctx.stroke();
-} else {
-var legLen = (sh === "pants") ? 14 : 8;
-ctx.beginPath();
-ctx.moveTo(cx - 14, cy - 11);
-ctx.lineTo(cx + 14, cy - 11);
-ctx.lineTo(cx + 15, cy + legLen);
-ctx.lineTo(cx + 3, cy + legLen);
-ctx.lineTo(cx, cy - 1);
-ctx.lineTo(cx - 3, cy + legLen);
-ctx.lineTo(cx - 15, cy + legLen);
-ctx.closePath();
-ctx.fill(); ctx.stroke();
-}
-} else if (cat === "shoes") {
-fillStrokeRoundRect(ctx, cx - 15, cy - 6, 18, 12, 4, col, "#222222", 2.5);
-fillStrokeRoundRect(ctx, cx - 15, cy + 2, 30, 9, 4, col, "#222222", 2.5);
-fillStrokeRoundRect(ctx, cx - 15, cy + 8, 30, 4, 2, "#FFFFFF", "#222222", 2);
-} else if (cat === "acc") {
-if (sh === "mask") {
-fillStrokeRoundRect(ctx, cx - 16, cy - 8, 32, 16, 7, col, "#222222", 2.5);
-ctx.fillStyle = "#FFFFFF";
-ctx.beginPath();
-ctx.arc(cx - 7, cy, 3.5, 0, Math.PI * 2);
-ctx.arc(cx + 7, cy, 3.5, 0, Math.PI * 2);
-ctx.fill(); ctx.stroke();
-} else if (sh === "necklace" || sh === "bracelet") {
-ctx.beginPath();
-ctx.arc(cx, cy, 11, 0, Math.PI * 2);
-ctx.strokeStyle = "#222222";
-ctx.lineWidth = 5;
-ctx.stroke();
-ctx.strokeStyle = col;
-ctx.lineWidth = 3;
-ctx.stroke();
-} else {
-fillStrokeRoundRect(ctx, cx - 16, cy - 6, 13, 11, 3, col, "#222222", 2.5);
-fillStrokeRoundRect(ctx, cx + 3, cy - 6, 13, 11, 3, col, "#222222", 2.5);
-ctx.beginPath();
-ctx.moveTo(cx - 3, cy - 1);
-ctx.lineTo(cx + 3, cy - 1);
-ctx.stroke();
-}
-}
-ctx.restore();
-}
-// ==========================================================================
-// DESENHO DA PERSONAGEM ESTILO ROBLOX FOFA CARTOON (FRENTE E COSTAS)
-// ==========================================================================
-function drawCharacter(ctx, cx, cy, scale, facingBack, walkCycle) {
-ctx.save();
-ctx.translate(cx, cy);
-ctx.scale(scale, scale);
-var isF = (State.gender === "F");
-var eq = State.equipped;
-var cat = getCatalog(State.gender);
-var swing = Math.sin(walkCycle || 0) * 6;
-// Sombra no chão
-fillStrokeOval(ctx, 0, 78, 32, 9, "rgba(0,0,0,0.22)", null, 0);
-// Braço Esquerdo
-ctx.save();
-ctx.translate(-26, -8);
-ctx.rotate((swing * Math.PI) / 180);
-fillStrokeRoundRect(ctx, -11, 0, 14, 42, 6, State.skinColor, "#222222", 3);
-ctx.beginPath();
-ctx.arc(-4, 40, 6, 0, Math.PI * 2);
-ctx.fillStyle = State.skinColor;
-ctx.fill();
-ctx.lineWidth = 3;
-ctx.strokeStyle = "#222222";
-ctx.stroke();
-ctx.restore();
-// Braço Direito
-ctx.save();
-ctx.translate(26, -8);
-ctx.rotate((-swing * Math.PI) / 180);
-fillStrokeRoundRect(ctx, -3, 0, 14, 42, 6, State.skinColor, "#222222", 3);
-ctx.beginPath();
-ctx.arc(4, 40, 6, 0, Math.PI * 2);
-ctx.fillStyle = State.skinColor;
-ctx.fill();
-ctx.lineWidth = 3;
-ctx.strokeStyle = "#222222";
-ctx.stroke();
-ctx.restore();
-// Pernas
-var leftLegY = 30 + (swing > 0 ? -swing * 0.5 : 0);
-var rightLegY = 30 + (swing < 0 ? swing * 0.5 : 0);
-fillStrokeRoundRect(ctx, -21, leftLegY, 18, 44, 5, State.skinColor, "#222222", 3);
-fillStrokeRoundRect(ctx, 3, rightLegY, 18, 44, 5, State.skinColor, "#222222", 3);
-// Parte de Baixo
-var bottomItem = (eq.bottoms >= 0 && cat.bottoms[eq.bottoms]) ? cat.bottoms[eq.bottoms] : { shape: "swim", color: isF ? "#F48FB1" : "#29B6F6" };
-if (bottomItem.shape === "skirt" || bottomItem.shape === "dress") {
-ctx.fillStyle = bottomItem.color;
-ctx.strokeStyle = "#222222";
-ctx.lineWidth = 3;
-ctx.beginPath();
-ctx.moveTo(-22, 26);
-ctx.lineTo(22, 26);
-ctx.lineTo(29, 54);
-ctx.lineTo(-29, 54);
-ctx.closePath();
-ctx.fill();
-ctx.stroke();
-} else if (bottomItem.shape === "pants") {
-fillStrokeRoundRect(ctx, -22, leftLegY, 19, 38, 4, bottomItem.color, "#222222", 3);
-fillStrokeRoundRect(ctx, 3, rightLegY, 19, 38, 4, bottomItem.color, "#222222", 3);
-fillStrokeRoundRect(ctx, -22, 24, 44, 14, 4, bottomItem.color, "#222222", 3);
-} else {
-fillStrokeRoundRect(ctx, -22, leftLegY, 19, 20, 4, bottomItem.color, "#222222", 3);
-fillStrokeRoundRect(ctx, 3, rightLegY, 19, 20, 4, bottomItem.color, "#222222", 3);
-fillStrokeRoundRect(ctx, -22, 24, 44, 12, 4, bottomItem.color, "#222222", 3);
-}
-// Calçados
-if (eq.shoes >= 0 && cat.shoes[eq.shoes]) {
-var shoeColor = cat.shoes[eq.shoes].color;
-fillStrokeRoundRect(ctx, -23, leftLegY + 33, 21, 12, 5, shoeColor, "#222222", 3);
-fillStrokeRoundRect(ctx, 2, rightLegY + 33, 21, 12, 5, shoeColor, "#222222", 3);
-}
-// Tronco
-var topItem = (eq.tops >= 0 && cat.tops[eq.tops]) ? cat.tops[eq.tops] : { shape: "swim", color: isF ? "#FF80AB" : "#29B6F6" };
-fillStrokeRoundRect(ctx, -22, -14, 44, 42, 7, topItem.color, "#222222", 3);
-if (topItem.shape !== "tank" && topItem.shape !== "crop" && topItem.shape !== "swim") {
-fillStrokeRoundRect(ctx, -34, -12, 13, 18, 4, topItem.color, "#222222", 3);
-fillStrokeRoundRect(ctx, 21, -12, 13, 18, 4, topItem.color, "#222222", 3);
-}
-// Cabelo de fundo
-if (isF) {
-fillStrokeRoundRect(ctx, -29, -56, 58, 44, 16, State.hairColor, "#222222", 3);
-}
-// Cabeça
-fillStrokeRoundRect(ctx, -23, -58, 46, 44, 14, State.skinColor, "#222222", 3);
-if (facingBack) {
-fillStrokeRoundRect(ctx, -26, -62, 52, isF ? 48 : 30, 16, State.hairColor, "#222222", 3);
-} else {
-ctx.fillStyle = State.hairColor;
-ctx.strokeStyle = "#222222";
-ctx.lineWidth = 3;
-ctx.beginPath();
-ctx.moveTo(-25, -44);
-ctx.quadraticCurveTo(0, -68, 25, -44);
-ctx.lineTo(25, -54);
-ctx.quadraticCurveTo(0, -68, -25, -54);
-ctx.closePath();
-ctx.fill();
-ctx.stroke();
-fillStrokeRoundRect(ctx, -25, -63, 50, 18, 10, State.hairColor, "#222222", 3);
-// Bochechas
-ctx.fillStyle = "rgba(255, 105, 135, 0.45)";
-ctx.beginPath();
-ctx.arc(-13, -31, 4.5, 0, Math.PI * 2);
-ctx.arc(13, -31, 4.5, 0, Math.PI * 2);
-ctx.fill();
-// Olhinhos
-ctx.fillStyle = "#222222";
-ctx.beginPath();
-ctx.arc(-9, -37, 3.2, 0, Math.PI * 2);
-ctx.arc(9, -37, 3.2, 0, Math.PI * 2);
-ctx.fill();
-// Sorriso
-ctx.strokeStyle = "#222222";
-ctx.lineWidth = 2.5;
-ctx.lineCap = "round";
-ctx.beginPath();
-ctx.arc(0, -32, 6.5, 0.15 * Math.PI, 0.85 * Math.PI);
-ctx.stroke();
-// Acessórios
-if (eq.acc >= 0 && cat.acc[eq.acc]) {
-var accObj = cat.acc[eq.acc];
-if (accObj.shape.indexOf("glasses") !== -1 || accObj.shape === "sunglasses") {
-fillStrokeRoundRect(ctx, -18, -43, 15, 10, 3, accObj.color, "#222222", 2.5);
-fillStrokeRoundRect(ctx, 3, -43, 15, 10, 3, accObj.color, "#222222", 2.5);
-} else if (accObj.shape === "mask") {
-fillStrokeRoundRect(ctx, -19, -45, 38, 14, 6, accObj.color, "#222222", 2.5);
-ctx.fillStyle = "#FFF";
-ctx.beginPath();
-ctx.arc(-8, -38, 3, 0, Math.PI * 2);
-ctx.arc(8, -38, 3, 0, Math.PI * 2);
-ctx.fill();
-}
-}
-}
-// Chapéu ou Lacinho
-if (eq.hats >= 0 && cat.hats[eq.hats]) {
-var hatObj = cat.hats[eq.hats];
-if (hatObj.shape === "bow") {
-ctx.save();
-ctx.translate(15, -58);
-ctx.rotate(0.25);
-ctx.fillStyle = hatObj.color;
-ctx.strokeStyle = "#222222";
-ctx.lineWidth = 2.5;
-ctx.beginPath();
-ctx.moveTo(0, 0); ctx.lineTo(-10, -7); ctx.lineTo(-10, 7); ctx.closePath();
-ctx.fill(); ctx.stroke();
-ctx.beginPath();
-ctx.moveTo(0, 0); ctx.lineTo(10, -7); ctx.lineTo(10, 7); ctx.closePath();
-ctx.fill(); ctx.stroke();
-ctx.beginPath();
-ctx.arc(0, 0, 3.5, 0, Math.PI * 2);
-ctx.fillStyle = "#FFF";
-ctx.fill(); ctx.stroke();
-ctx.restore();
-} else if (hatObj.shape === "crown") {
-ctx.fillStyle = hatObj.color;
-ctx.strokeStyle = "#222222";
-ctx.lineWidth = 2.5;
-ctx.beginPath();
-ctx.moveTo(-16, -58);
-ctx.lineTo(-18, -74);
-ctx.lineTo(-7, -65);
-ctx.lineTo(0, -77);
-ctx.lineTo(7, -65);
-ctx.lineTo(18, -74);
-ctx.lineTo(16, -58);
-ctx.closePath();
-ctx.fill(); ctx.stroke();
-} else {
-fillStrokeRoundRect(ctx, -26, -72, 52, 16, 8, hatObj.color, "#222222", 3);
-fillStrokeRoundRect(ctx, -32, -60, 64, 6, 3, hatObj.color, "#222222", 2.5);
-}
-} else if (isF) {
-ctx.save();
-ctx.translate(15, -58);
-ctx.rotate(0.25);
-ctx.fillStyle = "#FF80AB";
-ctx.strokeStyle = "#222222";
-ctx.lineWidth = 2.5;
-ctx.beginPath();
-ctx.moveTo(0, 0); ctx.lineTo(-9, -6); ctx.lineTo(-9, 6); ctx.closePath();
-ctx.fill(); ctx.stroke();
-ctx.beginPath();
-ctx.moveTo(0, 0); ctx.lineTo(9, -6); ctx.lineTo(9, 6); ctx.closePath();
-ctx.fill(); ctx.stroke();
-ctx.restore();
-}
-ctx.restore();
-}
-function drawPortraitPreview() {
-var c = document.getElementById("portrait-canvas");
-if (!c) return;
-var ctx = c.getContext("2d");
-ctx.clearRect(0, 0, c.width, c.height);
-ctx.fillStyle = "#FFF0F5";
-ctx.fillRect(0, 0, c.width, c.height);
-drawCharacter(ctx, 60, 92, 0.95, false, 0);
-}
-function refreshWardrobePreview() {
-var c = document.getElementById("wardrobe-avatar-canvas");
-if (!c) return;
-var ctx = c.getContext("2d");
-ctx.clearRect(0, 0, c.width, c.height);
-drawCharacter(ctx, c.width / 2, c.height * 0.54, 1.15, false, 0);
-}
-function renderTabIcons() {
-var sample = getCatalog("F");
-var map = {
-hats: sample.hats[1],
-tops: sample.tops[1],
-bottoms: sample.bottoms[0],
-shoes: sample.shoes[0],
-acc: sample.acc[0]
-};
-for (var k in map) {
-if (Object.prototype.hasOwnProperty.call(map, k)) {
-var c = document.getElementById("tab-icon-" + k);
-if (c) drawClothingIcon(c.getContext("2d"), c.width, c.height, k, map[k]);
-}
-}
-}
-function renderWardrobeGrid() {
-var grid = document.getElementById("wardrobe-grid");
-if (!grid) return;
-grid.innerHTML = "";
-var catKey = State.activeCategory;
-var list = getCatalog(State.gender)[catKey];
-for (var i = 0; i < list.length; i++) {
-(function(idx) {
-var item = list[idx];
-var cell = document.createElement("div");
-cell.className = "clothing-cell" + (State.equipped[catKey] === idx ? " equipped" : "");
-cell.style.backgroundColor = SLOT_BG_COLORS[idx % SLOT_BG_COLORS.length];
-var iconCanvas = document.createElement("canvas");
-iconCanvas.width = 56;
-iconCanvas.height = 48;
-drawClothingIcon(iconCanvas.getContext("2d"), 56, 48, catKey, item);
-var label = document.createElement("span");
-label.textContent = item.name;
-cell.appendChild(iconCanvas);
-cell.appendChild(label);
-var lockedTap = false;
-var selectHandler = function(ev) {
-if (ev && ev.cancelable) ev.preventDefault();
-if (ev) ev.stopPropagation();
-if (lockedTap) return;
-lockedTap = true;
-setTimeout(function() { lockedTap = false; }, 220);
-playPopSound(600, 0.08);
-if (State.equipped[catKey] === idx) {
-State.equipped[catKey] = -1;
-} else {
-State.equipped[catKey] = idx;
-}
-renderWardrobeGrid();
-refreshWardrobePreview();
-};
-cell.addEventListener("touchstart", selectHandler, false);
-cell.addEventListener("click", selectHandler, false);
-grid.appendChild(cell);
-})(i);
-}
-}
-function drawBackgroundHearts() {
-var c = document.getElementById("hearts-canvas");
-if (!c) return;
-c.width = window.innerWidth;
-c.height = window.innerHeight;
-var ctx = c.getContext("2d");
-ctx.clearRect(0, 0, c.width, c.height);
-var positions = [
-{ x: 0.08, y: 0.14, s: 22 }, { x: 0.16, y: 0.34, s: 18 },
-{ x: 0.07, y: 0.62, s: 26 }, { x: 0.18, y: 0.84, s: 20 },
-{ x: 0.88, y: 0.12, s: 24 }, { x: 0.92, y: 0.38, s: 19 },
-{ x: 0.85, y: 0.68, s: 25 }, { x: 0.91, y: 0.88, s: 21 },
-{ x: 0.50, y: 0.07, s: 18 }, { x: 0.48, y: 0.93, s: 20 }
-];
-for (var i = 0; i < positions.length; i++) {
-var p = positions[i];
-var hx = p.x * c.width;
-var hy = p.y * c.height;
-var hs = p.s;
-ctx.save();
-ctx.translate(hx, hy);
-ctx.fillStyle = (i % 2 === 0) ? "#FF4081" : "#F48FB1";
-ctx.strokeStyle = "#C2185B";
-ctx.lineWidth = 2;
-ctx.beginPath();
-ctx.moveTo(0, hs * 0.35);
-ctx.bezierCurveTo(-hs, -hs * 0.3, -hs * 0.5, -hs, 0, -hs * 0.4);
-ctx.bezierCurveTo(hs * 0.5, -hs, hs, -hs * 0.3, 0, hs * 0.35);
-ctx.closePath();
-ctx.fill();
-ctx.stroke();
-ctx.restore();
-}
-}
-// ==========================================================================
-// TRANSIÇÕES SUAVES NO CANVAS
-// ==========================================================================
-function startTransition(type, midpointCallback) {
-if (State.transition.active) return;
-State.transition.active = true;
-State.transition.type = type || "CLOUD";
-State.transition.progress = 0;
-State.transition.phase = "IN";
-State.transition.onMidpoint = midpointCallback;
-}
-function updateAndDrawTransition(ctx, w, h, dt) {
-if (!State.transition.active) return;
-var tr = State.transition;
-var speed = 2.5;
-if (tr.phase === "IN") {
-tr.progress += dt * speed;
-if (tr.progress >= 1) {
-tr.progress = 1;
-tr.phase = "OUT";
-if (tr.onMidpoint) {
-var fn = tr.onMidpoint;
-tr.onMidpoint = null;
-fn();
-}
-}
-} else {
-tr.progress -= dt * speed;
-if (tr.progress <= 0) {
-tr.progress = 0;
-tr.active = false;
-return;
-}
-}
-ctx.save();
-if (tr.type === "IRIS") {
-var maxR = Math.sqrt(w * w + h * h) * 0.65;
-var curR = Math.max(1, maxR * (1 - tr.progress));
-ctx.fillStyle = "#111111";
-ctx.beginPath();
-ctx.rect(0, 0, w, h);
-ctx.arc(w / 2, h / 2, curR, 0, Math.PI * 2, true);
-ctx.fill();
-} else {
-var p = tr.progress;
-ctx.fillStyle = "#FFFFFF";
-var cols = 6;
-for (var i = 0; i <= cols; i++) {
-var cx = (i / cols) * w;
-var cyTop = -h * 0.3 + p * (h * 0.85);
-var cyBot = h * 1.3 - p * (h * 0.85);
-ctx.beginPath();
-ctx.arc(cx, cyTop, w * 0.22, 0, Math.PI * 2);
-ctx.arc(cx, cyBot, w * 0.22, 0, Math.PI * 2);
-ctx.fill();
-}
-}
-ctx.restore();
-}
-function setScreen(newScreen) {
-State.screen = newScreen;
-document.getElementById("start-hud").style.display = (newScreen === "MENU") ? "block" : "none";
-document.getElementById("profile-screen").style.display = (newScreen === "PROFILE") ? "flex" : "none";
-document.getElementById("wardrobe-screen").style.display = (newScreen === "WARDROBE") ? "flex" : "none";
-document.getElementById("world-hud").style.display = (newScreen === "WORLD") ? "block" : "none";
-if (newScreen === "PROFILE") {
-drawBackgroundHearts();
-drawPortraitPreview();
-} else if (newScreen === "WARDROBE") {
-document.getElementById("wardrobe-name-label").textContent = State.playerName || "Isis";
-renderTabIcons();
-renderWardrobeGrid();
-refreshWardrobePreview();
-}
-}
-// ==========================================================================
-// EVENTOS DOS BOTÕES HTML (COMPATÍVEL COM iOS 12 TOUCH + CLICK)
-// ==========================================================================
-function bindButton(id, handler) {
-var el = document.getElementById(id);
-if (!el) return;
-var locked = false;
-var trigger = function(ev) {
-if (ev && ev.cancelable) ev.preventDefault();
-if (ev) ev.stopPropagation();
-if (locked) return;
-locked = true;
-setTimeout(function() { locked = false; }, 250);
-playPopSound(540, 0.09);
-handler();
-};
-el.addEventListener("touchstart", trigger, false);
-el.addEventListener("click", trigger, false);
-}
-bindButton("btn-start-game", function() {
-startTransition("CLOUD", function() {
-setScreen("PROFILE");
-});
-});
-var qualities = ["HIGH", "MED", "LOW"];
-bindButton("btn-quality", function() {
-var idx = (qualities.indexOf(State.quality) + 1) % qualities.length;
-State.quality = qualities[idx];
-document.getElementById("btn-quality").textContent = "Quality: " + State.quality;
-});
-bindButton("btn-sound", function() {
-State.sound = !State.sound;
-document.getElementById("btn-sound").textContent = "Sound: " + (State.sound ? "ON" : "OFF");
-});
-bindButton("btn-girl", function() {
-State.gender = "F";
-document.getElementById("btn-girl").className = "gender-pill girl selected";
-document.getElementById("btn-boy").className = "gender-pill boy inactive";
-drawPortraitPreview();
-});
-bindButton("btn-boy", function() {
-State.gender = "M";
-document.getElementById("btn-boy").className = "gender-pill boy selected";
-document.getElementById("btn-girl").className = "gender-pill girl inactive";
-drawPortraitPreview();
-});
-var fileInput = document.getElementById("photo-file-input");
-bindButton("btn-load-photo", function() {
+btnLoadPhoto.on('pointerdown', () => {
 fileInput.click();
 });
-bindButton("btn-remove-photo", function() {
-fileInput.value = "";
-State.hasCustomPhoto = false;
-State.skinColor = "#FFCCAA";
-State.hairColor = "#5D4037";
-document.getElementById("uploaded-photo-img").style.display = "none";
-document.getElementById("portrait-canvas").style.display = "block";
-drawPortraitPreview();
+btnRemovePhoto.on('pointerdown', () => {
+if (this.userAvatarSprite) {
+this.userAvatarSprite.destroy();
+this.userAvatarSprite = null;
+}
+avatarPlaceholder.setVisible(true);
+gameData.avatar.photo = null;
+fileInput.value = '';
 });
-fileInput.addEventListener("change", function(e) {
-if (e.target.files && e.target.files[0]) {
-var reader = new FileReader();
-reader.onload = function(ev) {
-var img = new Image();
-img.onload = function() {
-try {
-var tempC = document.createElement("canvas");
-tempC.width = 40;
-tempC.height = 40;
-var tCtx = tempC.getContext("2d");
-tCtx.drawImage(img, 0, 0, 40, 40);
-var hairPx = tCtx.getImageData(20, 7, 1, 1).data;
-var skinPx = tCtx.getImageData(20, 22, 1, 1).data;
-State.hairColor = "rgb(" + hairPx[0] + "," + hairPx[1] + "," + hairPx[2] + ")";
-State.skinColor = "rgb(" + skinPx[0] + "," + skinPx[1] + "," + skinPx[2] + ")";
-} catch (err) {}
-State.hasCustomPhoto = true;
-var photoEl = document.getElementById("uploaded-photo-img");
-photoEl.src = ev.target.result;
-photoEl.style.display = "block";
-document.getElementById("portrait-canvas").style.display = "none";
+// Campo de Nome Interativo
+let nameBox = this.add.rectangle(240, 470, 320, 50, 0xffffff).setInteractive();
+nameBox.setStrokeStyle(2, 0xadb5bd);
+let nameText = this.add.text(240, 470, gameData.avatar.name, { fontSize: '20px', fontStyle: 'bold', color: '#000' }).setOrigin(0.5);
+nameBox.on('pointerdown', () => {
+let typedName = prompt("Digite o nome do seu avatar:", gameData.avatar.name);
+if (typedName !== null && typedName.trim() !== '') {
+gameData.avatar.name = typedName.trim();
+nameText.setText(gameData.avatar.name);
+}
+});
+// Seção de Roupas & Acessórios Estilizados
+this.add.text(240, 530, 'Escolha o Estilo e Roupas', { fontSize: '18px', fontStyle: 'bold', color: '#333' }).setOrigin(0.5);
+let hatOpt = this.createOptionSelector(100, 580, 'Chapéu: Coroa', () => {
+gameData.avatar.hat = gameData.avatar.hat === 'Coroa Ouro' ? 'Laço Rosa' : 'Coroa Ouro';
+hatOpt.text.setText(gameData.avatar.hat);
+});
+let topOpt = this.createOptionSelector(240, 580, 'Cima: Camiseta', () => {
+gameData.avatar.top = gameData.avatar.top === 'Camiseta Azul' ? 'Cropped Vermelho' : 'Camiseta Azul';
+topOpt.text.setText(gameData.avatar.top);
+});
+let botOpt = this.createOptionSelector(380, 580, 'Baixo: Tênis', () => {
+gameData.avatar.bottom = gameData.avatar.bottom === 'Tênis Rosa' ? 'Coturno' : 'Tênis Rosa';
+botOpt.text.setText(gameData.avatar.bottom);
+});
+// Botão OK para Entrar no Jogo
+let btnOk = this.add.image(240, 765, 'btn_main').setInteractive();
+this.add.text(240, 765, 'OK - ENTRAR NA ILHA', { fontSize: '20px', fontStyle: 'bold', color: '#ffffff' }).setOrigin(0.5);
+btnOk.on('pointerdown', () => {
+if (fileInput.parentNode) {
+fileInput.parentNode.removeChild(fileInput);
+}
+this.scene.start('IslandWorldScene');
+});
+}
+createOptionSelector(x, y, label, callback) {
+let rect = this.add.rectangle(x, y, 125, 40, 0xffffff).setInteractive();
+rect.setStrokeStyle(2, 0xffb703);
+let txt = this.add.text(x, y, label, { fontSize: '13px', fontStyle: 'bold', color: '#000' }).setOrigin(0.5);
+rect.on('pointerdown', callback);
+return { rect, text: txt };
+}
+}
+// -------------------------------------------------------------------------
+// 4. ISLAND WORLD SCENE: O Mundo Isométrico da Ilha e Locais Sazonais
+// -------------------------------------------------------------------------
+class IslandWorldScene extends Phaser.Scene {
+constructor() {
+super('IslandWorldScene');
+}
+create() {
+this.add.image(240, 427, 'sky_bg');
+// Ilha principal detalhada
+this.add.image(240, 440, 'isometric_island').setScale(1.1);
+this.add.text(240, 55, ⁠Bem-vindo(a), ${gameData.avatar.name}!⁠, { fontSize: '24px', fontStyle: 'bold', color: '#ffffff', stroke: '#000', strokeThickness: 4 }).setOrigin(0.5);
+// Pontos interativos na Ilha (Restaurantes, Eventos e Mini-jogos)
+this.createWorldNode(130, 310, '🍔 Burger Island', 0xf72585);
+this.createWorldNode(350, 310, '🍕 Pizza Festival', 0x7209b7);
+this.createWorldNode(240, 460, '🍦 Doce Ilha', 0x3a0ca3);
+this.createWorldNode(140, 600, '🎄 Natal na Ilha', 0x06d6a0);
+this.createWorldNode(340, 600, '🐰 Páscoa', 0xff0054);
+// Botão para voltar ao Menu
+let btnBack = this.add.rectangle(75, 785, 110, 40, 0x222222, 0.85).setInteractive();
+this.add.text(75, 785, '⬅ Menu', { fontSize: '15px', color: '#fff' }).setOrigin(0.5);
+btnBack.on('pointerdown', () => {
+this.scene.start('MenuScene');
+});
+}
+createWorldNode(x, y, title, color) {
+let circle = this.add.circle(x, y, 42, color).setInteractive();
+circle.setStrokeStyle(4, 0xffffff);
+let label = this.add.text(x, y + 52, title, { fontSize: '13px', fontStyle: 'bold', color: '#ffffff', stroke: '#000000', strokeThickness: 3, align: 'center' }).setOrigin(0.5);
+circle.on('pointerdown', () => {
+this.tweens.add({
+targets: circle,
+scale: 1.25,
+duration: 120,
+yoyo: true
+});
+this.scene.start('KitchenMinigameScene', { location: title });
+});
+}
+}
+// -------------------------------------------------------------------------
+// 5. KITCHEN MINIGAME SCENE: O Coração do Jogo (Estilo Cooking Island)
+// -------------------------------------------------------------------------
+class KitchenMinigameScene extends Phaser.Scene {
+constructor() {
+super('KitchenMinigameScene');
+}
+init(data) {
+this.currentLocation = data.location || 'Burger Island';
+}
+create() {
+this.add.rectangle(240, 427, 480, 854, 0xf8f9fa);
+// Cabeçalho do Local Atual
+this.add.rectangle(240, 45, 480, 70, 0x1d3557);
+this.add.text(240, 40, this.currentLocation, { fontSize: '24px', fontStyle: 'bold', color: '#ffb703' }).setOrigin(0.5);
+// Balcão de Cozinha / Pedidos
+this.add.rectangle(240, 220, 420, 200, 0xffffff).setStrokeStyle(3, 0xdee2e6);
+this.add.text(240, 140, 'Clientes aguardando pedido:', { fontSize: '16px', fontStyle: 'bold', color: '#495057' }).setOrigin(0.5);
+// Exemplo de prato/pedido em preparo
+let orderCard = this.add.rectangle(240, 230, 280, 90, 0xffe8d6).setInteractive();
+orderCard.setStrokeStyle(2, 0xfcb19d);
+this.add.text(240, 230, '🍔 Hambúrguer Especial\nToque para preparar!', { fontSize: '16px', fontStyle: 'bold', color: '#bc6c25', align: 'center' }).setOrigin(0.5);
+let score = 0;
+let scoreText = this.add.text(240, 320, ⁠Pontos: ${score}⁠, { fontSize: '20px', fontStyle: 'bold', color: '#38b000' }).setOrigin(0.5);
+orderCard.on('pointerdown', () => {
+score += 10;
+scoreText.setText(⁠Pontos: ${score}⁠);
+this.tweens.add({
+targets: orderCard,
+scale: 1.05,
+duration: 80,
+yoyo: true
+});
+});
+// Área de Aparelhos e Ferramentas da Cozinha
+this.add.text(240, 420, 'Equipamentos da Cozinha', { fontSize: '18px', fontStyle: 'bold', color: '#333' }).setOrigin(0.5);
+let stove = this.createAppliance(140, 520, '🔥 Fogão', 0xdda15e);
+let blender = this.createAppliance(340, 520, '🥤 Liquidificador', 0x606c38);
+// Botão Sair / Voltar para a Ilha
+let btnReturn = this.add.image(240, 770, 'btn_main').setInteractive();
+this.add.text(240, 770, 'VOLTAR PARA A ILHA', { fontSize: '18px', fontStyle: 'bold', color: '#ffffff' }).setOrigin(0.5);
+btnReturn.on('pointerdown', () => {
+this.scene.start('IslandWorldScene');
+});
+}
+createAppliance(x, y, label, color) {
+let box = this.add.rectangle(x, y, 160, 110, color).setInteractive();
+box.setStrokeStyle(3, 0xffffff);
+this.add.text(x, y, label, { fontSize: '16px', fontStyle: 'bold', color: '#fff' }).setOrigin(0.5);
+box.on('pointerdown', () => {
+this.tweens.add({
+targets: box,
+angle: 3,
+duration: 60,
+yoyo: true,
+repeat: 1
+});
+});
+return box;
+}
+}
+// Inicialização Global
+window.onload = function() {
+new Phaser.Game(config);
 };
-img.src = ev.target.result;
-};
-reader.readAsDataURL(e.target.files[0]);
-}
-});
-bindButton("btn-profile-ok", function() {
-var val = document.getElementById("player-name-input").value.replace(/^\s+|\s+$/g, "");
-State.playerName = val || "Isis";
-startTransition("CLOUD", function() {
-setScreen("WARDROBE");
-});
-});
-var tabButtons = document.querySelectorAll(".w-tab-btn");
-for (var t = 0; t < tabButtons.length; t++) {
-(function(btn) {
-var lockedTab = false;
-var handleTab = function(ev) {
-if (ev && ev.cancelable) ev.preventDefault();
-if (ev) ev.stopPropagation();
-if (lockedTab) return;
-lockedTab = true;
-setTimeout(function() { lockedTab = false; }, 200);
-playPopSound(620, 0.07);
-for (var j = 0; j < tabButtons.length; j++) {
-tabButtons[j].classList.remove("active");
-}
-btn.classList.add("active");
-State.activeCategory = btn.getAttribute("data-cat");
-renderWardrobeGrid();
-};
-btn.addEventListener("touchstart", handleTab, false);
-btn.addEventListener("click", handleTab, false);
-})(tabButtons[t]);
-}
-bindButton("btn-create-avatar", function() {
-startTransition("IRIS", function() {
-resetPlayerPosition();
-setScreen("WORLD");
-});
-});
-bindButton("btn-exit-island", function() {
-startTransition("CLOUD", function() {
-setScreen("MENU");
-});
-});
-bindButton("btn-open-wardrobe", function() {
-startTransition("CLOUD", function() {
-setScreen("WARDROBE");
-});
-});
-// ==========================================================================
-// RENDERIZADOR DA TELA 1: ILHA INICIAL CARTOON (IDÊNTICA AO MOCKUP 1)
-// ==========================================================================
-function drawBuntingFlags(ctx, x1, y1, x2, y2, count) {
-var flagColors = ["#FF5252", "#FFEB3B", "#29B6F6", "#66BB6A", "#AB47BC", "#FF9800"];
-ctx.save();
-ctx.strokeStyle = "#222222";
-ctx.lineWidth = 2.5;
-ctx.beginPath();
-ctx.moveTo(x1, y1);
-ctx.lineTo(x2, y2);
-ctx.stroke();
-for (var i = 0; i < count; i++) {
-var t1 = i / count;
-var t2 = (i + 0.85) / count;
-var tMid = (i + 0.42) / count;
-var ax = x1 + (x2 - x1) * t1;
-var ay = y1 + (y2 - y1) * t1;
-var bx = x1 + (x2 - x1) * t2;
-var by = y1 + (y2 - y1) * t2;
-var mx = x1 + (x2 - x1) * tMid;
-var my = y1 + (y2 - y1) * tMid + 14;
-ctx.fillStyle = flagColors[i % flagColors.length];
-ctx.beginPath();
-ctx.moveTo(ax, ay);
-ctx.lineTo(bx, by);
-ctx.lineTo(mx, my);
-ctx.closePath();
-ctx.fill();
-ctx.stroke();
-}
-ctx.restore();
-}
-function drawCuteCrab(ctx, x, y, scale) {
-ctx.save();
-ctx.translate(x, y);
-ctx.scale(scale, scale);
-ctx.strokeStyle = "#222222";
-ctx.lineWidth = 2.5;
-ctx.fillStyle = "#E53935";
-ctx.beginPath();
-ctx.arc(-14, -10, 5, 0, Math.PI * 2);
-ctx.arc(14, -10, 5, 0, Math.PI * 2);
-ctx.fill(); ctx.stroke();
-ctx.beginPath();
-ctx.moveTo(-12, 2); ctx.lineTo(-19, 7);
-ctx.moveTo(-10, 6); ctx.lineTo(-17, 11);
-ctx.moveTo(12, 2); ctx.lineTo(19, 7);
-ctx.moveTo(10, 6); ctx.lineTo(17, 11);
-ctx.stroke();
-fillStrokeRoundRect(ctx, -13, -6, 26, 15, 7, "#E53935", "#222222", 2.5);
-ctx.fillStyle = "#FFFFFF";
-ctx.beginPath();
-ctx.arc(-5, -7, 3.5, 0, Math.PI * 2);
-ctx.arc(5, -7, 3.5, 0, Math.PI * 2);
-ctx.fill(); ctx.stroke();
-ctx.fillStyle = "#222222";
-ctx.beginPath();
-ctx.arc(-5, -7, 1.5, 0, Math.PI * 2);
-ctx.arc(5, -7, 1.5, 0, Math.PI * 2);
-ctx.fill();
-ctx.restore();
-}
-function drawCuteFish(ctx, x, y, color, dir) {
-ctx.save();
-ctx.translate(x, y);
-ctx.scale(dir || 1, 1);
-ctx.fillStyle = color || "#FF9800";
-ctx.strokeStyle = "#222222";
-ctx.lineWidth = 2.2;
-ctx.beginPath();
-ctx.moveTo(-10, 0);
-ctx.lineTo(-18, -7);
-ctx.lineTo(-18, 7);
-ctx.closePath();
-ctx.fill(); ctx.stroke();
-fillStrokeOval(ctx, 0, 0, 12, 7.5, color || "#FF9800", "#222222", 2.2);
-ctx.fillStyle = "#FFFFFF";
-ctx.beginPath();
-ctx.arc(5, -2, 2.5, 0, Math.PI * 2);
-ctx.fill();
-ctx.fillStyle = "#222222";
-ctx.beginPath();
-ctx.arc(6, -2, 1.3, 0, Math.PI * 2);
-ctx.fill();
-ctx.restore();
-}
-function drawCuteBunny(ctx, x, y, scale) {
-ctx.save();
-ctx.translate(x, y);
-ctx.scale(scale, scale);
-ctx.strokeStyle = "#222222";
-ctx.lineWidth = 2.5;
-fillStrokeRoundRect(ctx, -11, -32, 8, 20, 4, "#FFFFFF", "#222222", 2.5);
-fillStrokeRoundRect(ctx, 3, -32, 8, 20, 4, "#FFFFFF", "#222222", 2.5);
-fillStrokeRoundRect(ctx, -9, -28, 4, 13, 2, "#F48FB1", null, 0);
-fillStrokeRoundRect(ctx, 5, -28, 4, 13, 2, "#F48FB1", null, 0);
-ctx.fillStyle = "#FFFFFF";
-ctx.beginPath();
-ctx.arc(0, -10, 13, 0, Math.PI * 2);
-ctx.fill(); ctx.stroke();
-ctx.fillStyle = "#222222";
-ctx.beginPath();
-ctx.arc(-5, -12, 2, 0, Math.PI * 2);
-ctx.arc(5, -12, 2, 0, Math.PI * 2);
-ctx.fill();
-ctx.fillStyle = "#F48FB1";
-ctx.beginPath();
-ctx.arc(0, -8, 2.5, 0, Math.PI * 2);
-ctx.fill();
-fillStrokeOval(ctx, -18, -4, 9, 12, "#BA68C8", "#222222", 2.5);
-ctx.restore();
-}
-function drawCarnivalMasks(ctx, x, y, scale) {
-ctx.save();
-ctx.translate(x, y);
-ctx.scale(scale, scale);
-fillStrokeRoundRect(ctx, -18, -10, 22, 14, 6, "#29B6F6", "#222222", 2.5);
-fillStrokeRoundRect(ctx, 0, -4, 22, 14, 6, "#FFCA28", "#222222", 2.5);
-ctx.restore();
-}
-function renderStartMenuScene(ctx, w, h, time) {
-var skyGrad = ctx.createLinearGradient(0, 0, 0, h * 0.55);
-skyGrad.addColorStop(0, "#4FC3F7");
-skyGrad.addColorStop(1, "#B3E5FC");
-ctx.fillStyle = skyGrad;
-ctx.fillRect(0, 0, w, h * 0.56);
-ctx.fillStyle = "rgba(255,255,255,0.92)";
-var cloudPositions = [0.15, 0.48, 0.82];
-for (var i = 0; i < cloudPositions.length; i++) {
-var cx = ((cloudPositions[i] * w + time * 14 * (i + 1)) % (w + 160)) - 80;
-var cy = h * (0.14 + (i % 2) * 0.08);
-ctx.beginPath();
-ctx.arc(cx, cy, 26, 0, Math.PI * 2);
-ctx.arc(cx + 22, cy - 6, 32, 0, Math.PI * 2);
-ctx.arc(cx + 46, cy, 24, 0, Math.PI * 2);
-ctx.fill();
-}
-var seaGrad = ctx.createLinearGradient(0, h * 0.52, 0, h);
-seaGrad.addColorStop(0, "#039BE5");
-seaGrad.addColorStop(1, "#0277BD");
-ctx.fillStyle = seaGrad;
-ctx.fillRect(0, h * 0.52, w, h * 0.48);
-var isPortrait = h > w;
-var ix = isPortrait ? w * 0.50 : w * 0.44;
-var iy = isPortrait ? h * 0.52 : h * 0.58;
-var s = Math.min(w / 680, h / 450) * (isPortrait ? 1.15 : 1.05);
-ctx.save();
-ctx.translate(ix, iy);
-ctx.scale(s, s);
-var wavePulse = Math.sin(time * 2.5) * 4;
-fillStrokeOval(ctx, 0, 42, 268 + wavePulse, 96 + wavePulse * 0.5, "#E1F5FE", "#81D4FA", 3);
-ctx.lineJoin = "round";
-ctx.strokeStyle = "#222222";
-ctx.lineWidth = 4;
-// Pico Esquerdo
-ctx.fillStyle = "#8D6E63";
-ctx.beginPath();
-ctx.moveTo(-185, 10);
-ctx.lineTo(-95, -115);
-ctx.lineTo(-10, 10);
-ctx.closePath();
-ctx.fill(); ctx.stroke();
-ctx.fillStyle = "#FFFFFF";
-ctx.beginPath();
-ctx.moveTo(-95, -115);
-ctx.lineTo(-125, -73);
-ctx.lineTo(-108, -66);
-ctx.lineTo(-95, -78);
-ctx.lineTo(-80, -65);
-ctx.lineTo(-65, -73);
-ctx.closePath();
-ctx.fill(); ctx.stroke();
-// Pico Central Maior (Montanha de Natal)
-ctx.fillStyle = "#A1887F";
-ctx.beginPath();
-ctx.moveTo(-115, 20);
-ctx.lineTo(5, -150);
-ctx.lineTo(135, 20);
-ctx.closePath();
-ctx.fill(); ctx.stroke();
-ctx.fillStyle = "#FFFFFF";
-ctx.beginPath();
-ctx.moveTo(5, -150);
-ctx.lineTo(-34, -92);
-ctx.lineTo(-14, -84);
-ctx.lineTo(5, -100);
-ctx.lineTo(24, -82);
-ctx.lineTo(44, -92);
-ctx.closePath();
-ctx.fill(); ctx.stroke();
-// Pinheirinho de Natal
-ctx.fillStyle = "#2E7D32";
-ctx.beginPath();
-ctx.moveTo(52, -135);
-ctx.lineTo(32, -95);
-ctx.lineTo(72, -95);
-ctx.closePath();
-ctx.fill(); ctx.stroke();
-ctx.fillStyle = "#FFEB3B";
-ctx.beginPath();
-ctx.arc(52, -138, 5, 0, Math.PI * 2);
-ctx.fill(); ctx.stroke();
-// Base de Areia Dourada e Colina Verde da Ilha
-fillStrokeOval(ctx, 0, 38, 245, 82, "#FFD54F", "#222222", 4);
-fillStrokeOval(ctx, 0, 12, 210, 62, "#8BC34A", "#222222", 4);
-// Bandeirinhas coloridas
-drawBuntingFlags(ctx, -210, -55, -85, -15, 6);
-drawBuntingFlags(ctx, 85, -15, 210, -55, 6);
-// Barraca de Festa
-ctx.fillStyle = "#AB47BC";
-ctx.strokeStyle = "#222222";
-ctx.lineWidth = 4;
-ctx.beginPath();
-ctx.moveTo(75, 18);
-ctx.lineTo(118, -32);
-ctx.lineTo(162, 18);
-ctx.closePath();
-ctx.fill(); ctx.stroke();
-ctx.fillStyle = "#FFCA28";
-ctx.beginPath();
-ctx.moveTo(102, 18);
-ctx.lineTo(118, -32);
-ctx.lineTo(134, 18);
-ctx.closePath();
-ctx.fill(); ctx.stroke();
-drawCarnivalMasks(ctx, -110, 12, 1.0);
-drawCuteBunny(ctx, -5, 22, 0.95);
-// Plaquinhas Brancas
-fillStrokeRoundRect(ctx, -38, -82, 92, 28, 12, "#FFFFFF", "#222222", 3);
-drawCartoonText(ctx, "Natal 🎄", 8, -68, 14, "#222222", "#FFFFFF", 0);
-fillStrokeRoundRect(ctx, -185, 24, 114, 30, 12, "#FFFFFF", "#222222", 3);
-drawCartoonText(ctx, "Carnaval 🎭", -128, 39, 14, "#222222", "#FFFFFF", 0);
-fillStrokeRoundRect(ctx, -52, 42, 102, 30, 12, "#FFFFFF", "#222222", 3);
-drawCartoonText(ctx, "Páscoa 🐰", -1, 57, 14, "#222222", "#FFFFFF", 0);
-var crabX = -75 + Math.sin(time * 2) * 18;
-drawCuteCrab(ctx, crabX, 82, 0.85);
-drawCuteFish(ctx, -230 + Math.sin(time * 1.5) * 15, 92, "#FF9800", 1);
-drawCuteFish(ctx, -185 + Math.cos(time * 1.8) * 12, 122, "#29B6F6", -1);
-drawCuteFish(ctx, 190 + Math.sin(time * 1.4) * 15, 108, "#FF7043", -1);
-ctx.restore();
-// Título "ISISLAND" no topo
-var titleSize = Math.max(38, Math.min(72, Math.floor(w * 0.11)));
-var titleY = isPortrait ? h * 0.11 : h * 0.13;
-ctx.save();
-ctx.font = "900 " + titleSize + "px 'Arial Rounded MT Bold', 'Helvetica Rounded', Arial, sans-serif";
-ctx.textAlign = "center";
-ctx.textBaseline = "middle";
-ctx.lineJoin = "round";
-ctx.fillStyle = "#222222";
-ctx.fillText("ISISLAND", w / 2 + 4, titleY + 6);
-ctx.strokeStyle = "#222222";
-ctx.lineWidth = 11;
-ctx.strokeText("ISISLAND", w / 2, titleY);
-var tGrad = ctx.createLinearGradient(0, titleY - titleSize * 0.5, 0, titleY + titleSize * 0.5);
-tGrad.addColorStop(0, "#FFF59D");
-tGrad.addColorStop(0.5, "#FFEB3B");
-tGrad.addColorStop(1, "#FB8C00");
-ctx.fillStyle = tGrad;
-ctx.fillText("ISISLAND", w / 2, titleY);
-ctx.restore();
-}
-// ==========================================================================
-// CENA 4: MUNDO DA ILHA JOGÁVEL EM 3ª PESSOA (IDÊNTICO AO 4º QUADRO)
-// ==========================================================================
-var ZONES = [
-{ name: "Carnaval (Fevereiro)", ribbonColor: "#FF4081", tentColor: "#AB47BC", accent: "#FFCA28" },
-{ name: "Páscoa (Abril)", ribbonColor: "#EC407A", tentColor: "#F48FB1", accent: "#BA68C8" },
-{ name: "Festa Junina (Junho)", ribbonColor: "#FB8C00", tentColor: "#EF5350", accent: "#FFEB3B" },
-{ name: "Primavera (Setembro)", ribbonColor: "#43A047", tentColor: "#66BB6A", accent: "#FF80AB" },
-{ name: "Dia das Crianças (Outubro)", ribbonColor: "#039BE5", tentColor: "#29B6F6", accent: "#FFEE58" },
-{ name: "Halloween (Outubro)", ribbonColor: "#8E24AA", tentColor: "#5E35B1", accent: "#FF9800" },
-{ name: "Natal na Montanha (Dezembro)", ribbonColor: "#E53935", tentColor: "#2E7D32", accent: "#FFFFFF" }
-];
-var ZONE_WIDTH = 900;
-var TOTAL_WORLD_WIDTH = ZONES.length * ZONE_WIDTH;
-var World = {
-playerX: 420,
-playerY: 0.68,
-jumpZ: 0,
-jumpVz: 0,
-isJumping: false,
-walkCycle: 0,
-facingBack: true,
-pickAnimTimer: 0,
-joy: {
-active: false,
-pointerId: null,
-baseX: 110,
-baseY: 0,
-stickX: 110,
-stickY: 0,
-dx: 0,
-dy: 0,
-maxRadius: 46
-},
-btnA: { x: 0, y: 0, r: 38, pressed: false },
-btnB: { x: 0, y: 0, r: 38, pressed: false }
-};
-function resetPlayerPosition() {
-World.playerX = 420;
-World.playerY = 0.68;
-World.jumpZ = 0;
-World.jumpVz = 0;
-World.isJumping = false;
-World.facingBack = true;
-World.joy.active = false;
-World.joy.dx = 0;
-World.joy.dy = 0;
-}
-function triggerJump() {
-if (!World.isJumping) {
-World.isJumping = true;
-World.jumpVz = 11.5;
-playPopSound(480, 0.12);
-}
-}
-function triggerPickAction() {
-World.pickAnimTimer = 0.35;
-playPopSound(680, 0.10);
-}
-var canvas = document.getElementById("main-canvas");
-function getControlPositions(w, h) {
-World.joy.baseX = Math.max(85, w * 0.13);
-World.joy.baseY = h - Math.max(90, h * 0.18);
-if (!World.joy.active) {
-World.joy.stickX = World.joy.baseX;
-World.joy.stickY = World.joy.baseY;
-}
-World.btnA.x = w - Math.max(150, w * 0.21);
-World.btnA.y = h - Math.max(78, h * 0.15);
-World.btnB.x = w - Math.max(68, w * 0.09);
-World.btnB.y = h - Math.max(122, h * 0.24);
-}
-function handlePointerDown(id, px, py) {
-if (State.screen !== "WORLD") return;
-var w = canvas.width;
-var h = canvas.height;
-getControlPositions(w, h);
-var distA = Math.sqrt((px - World.btnA.x)(px - World.btnA.x) + (py - World.btnA.y)(py - World.btnA.y));
-if (distA <= World.btnA.r + 14) {
-World.btnA.pressed = true;
-triggerPickAction();
-return;
-}
-var distB = Math.sqrt((px - World.btnB.x)(px - World.btnB.x) + (py - World.btnB.y)(py - World.btnB.y));
-if (distB <= World.btnB.r + 14) {
-World.btnB.pressed = true;
-triggerJump();
-return;
-}
-if (px < w * 0.52 && py > h * 0.35) {
-World.joy.active = true;
-World.joy.pointerId = id;
-updateJoystickStick(px, py);
-}
-}
-function updateJoystickStick(px, py) {
-var vx = px - World.joy.baseX;
-var vy = py - World.joy.baseY;
-var dist = Math.sqrt(vx * vx + vy * vy);
-var maxR = World.joy.maxRadius;
-if (dist > maxR) {
-vx = (vx / dist) * maxR;
-vy = (vy / dist) * maxR;
-}
-World.joy.stickX = World.joy.baseX + vx;
-World.joy.stickY = World.joy.baseY + vy;
-World.joy.dx = vx / maxR;
-World.joy.dy = vy / maxR;
-}
-function handlePointerMove(id, px, py) {
-if (State.screen !== "WORLD") return;
-if (World.joy.active && World.joy.pointerId === id) {
-updateJoystickStick(px, py);
-}
-}
-function handlePointerUp(id) {
-World.btnA.pressed = false;
-World.btnB.pressed = false;
-if (World.joy.active && (World.joy.pointerId === id || id === "mouse")) {
-World.joy.active = false;
-World.joy.pointerId = null;
-World.joy.dx = 0;
-World.joy.dy = 0;
-World.joy.stickX = World.joy.baseX;
-World.joy.stickY = World.joy.baseY;
-}
-}
-canvas.addEventListener("touchstart", function(e) {
-if (State.screen === "WORLD" && e.cancelable) e.preventDefault();
-for (var i = 0; i < e.changedTouches.length; i++) {
-var t = e.changedTouches[i];
-handlePointerDown(t.identifier, t.clientX, t.clientY);
-}
-}, false);
-canvas.addEventListener("touchmove", function(e) {
-if (State.screen === "WORLD" && e.cancelable) e.preventDefault();
-for (var i = 0; i < e.changedTouches.length; i++) {
-var t = e.changedTouches[i];
-handlePointerMove(t.identifier, t.clientX, t.clientY);
-}
-}, false);
-canvas.addEventListener("touchend", function(e) {
-for (var i = 0; i < e.changedTouches.length; i++) {
-handlePointerUp(e.changedTouches[i].identifier);
-}
-}, false);
-canvas.addEventListener("touchcancel", function(e) {
-for (var i = 0; i < e.changedTouches.length; i++) {
-handlePointerUp(e.changedTouches[i].identifier);
-}
-}, false);
-canvas.addEventListener("mousedown", function(e) {
-handlePointerDown("mouse", e.clientX, e.clientY);
-}, false);
-window.addEventListener("mousemove", function(e) {
-handlePointerMove("mouse", e.clientX, e.clientY);
-}, false);
-window.addEventListener("mouseup", function() {
-handlePointerUp("mouse");
-}, false);
-var keys = {};
-window.addEventListener("keydown", function(e) {
-keys[e.keyCode] = true;
-if (e.keyCode === 32 && State.screen === "WORLD") triggerJump();
-});
-window.addEventListener("keyup", function(e) {
-keys[e.keyCode] = false;
-});
-function updateWorldPhysics(dt) {
-var moveX = World.joy.dx;
-var moveY = World.joy.dy;
-if (keys[37] || keys[65]) moveX = -1;
-if (keys[39] || keys[68]) moveX = 1;
-if (keys[38] || keys[87]) moveY = -1;
-if (keys[40] || keys[83]) moveY = 1;
-if (Math.abs(moveX) > 0.08 || Math.abs(moveY) > 0.08) {
-World.playerX += moveX * 260 * dt;
-World.playerY += moveY * 0.32 * dt;
-World.walkCycle += dt * 12;
-if (moveY > 0.35) {
-World.facingBack = false;
-} else if (moveY < -0.15 || Math.abs(moveX) > 0.2) {
-World.facingBack = true;
-}
-} else {
-World.walkCycle = 0;
-}
-if (World.playerY < 0.50) World.playerY = 0.50;
-if (World.playerY > 0.83) World.playerY = 0.83;
-if (World.playerX < 0) World.playerX += TOTAL_WORLD_WIDTH;
-if (World.playerX >= TOTAL_WORLD_WIDTH) World.playerX -= TOTAL_WORLD_WIDTH;
-if (World.isJumping) {
-World.jumpZ += World.jumpVz;
-World.jumpVz -= 32 * dt;
-if (World.jumpZ <= 0) {
-World.jumpZ = 0;
-World.jumpVz = 0;
-World.isJumping = false;
-}
-}
-if (World.pickAnimTimer > 0) {
-World.pickAnimTimer -= dt;
-}
-}
-function renderIslandWorldScene(ctx, w, h, time, dt) {
-updateWorldPhysics(dt);
-getControlPositions(w, h);
-var camX = World.playerX - w * 0.42;
-ctx.fillStyle = "#81D4FA";
-ctx.fillRect(0, 0, w, h);
-ctx.fillStyle = "#039BE5";
-ctx.fillRect(0, h * 0.36, w, h * 0.64);
-ctx.save();
-ctx.strokeStyle = "#222222";
-ctx.lineWidth = 4;
-ctx.fillStyle = "#E1F5FE";
-ctx.beginPath();
-ctx.moveTo(0, h * 0.32);
-ctx.quadraticCurveTo(w * 0.72, h * 0.38, w * 0.88, h);
-ctx.lineTo(0, h);
-ctx.closePath();
-ctx.fill();
-ctx.fillStyle = "#FFD54F";
-ctx.beginPath();
-ctx.moveTo(0, h * 0.34);
-ctx.quadraticCurveTo(w * 0.68, h * 0.40, w * 0.83, h);
-ctx.lineTo(0, h);
-ctx.closePath();
-ctx.fill();
-ctx.stroke();
-ctx.fillStyle = "#8BC34A";
-ctx.beginPath();
-ctx.moveTo(0, h * 0.28);
-ctx.quadraticCurveTo(w * 0.38, h * 0.36, w * 0.22, h);
-ctx.lineTo(0, h);
-ctx.closePath();
-ctx.fill();
-ctx.stroke();
-ctx.restore();
-for (var zIdx = -1; zIdx <= ZONES.length; zIdx++) {
-var wrappedIdx = (zIdx + ZONES.length) % ZONES.length;
-var zone = ZONES[wrappedIdx];
-var worldX = zIdx * ZONE_WIDTH;
-var screenX = worldX - camX;
-if (screenX > -ZONE_WIDTH && screenX < w + ZONE_WIDTH) {
-ctx.save();
-ctx.lineJoin = "round";
-ctx.strokeStyle = "#222222";
-ctx.lineWidth = 3.5;
-var mx = screenX + 140;
-var my = h * 0.38;
-ctx.fillStyle = "#8D6E63";
-ctx.beginPath();
-ctx.moveTo(mx - 150, my);
-ctx.lineTo(mx - 30, my - 190);
-ctx.lineTo(mx + 95, my);
-ctx.closePath();
-ctx.fill(); ctx.stroke();
-ctx.fillStyle = "#FFFFFF";
-ctx.beginPath();
-ctx.moveTo(mx - 30, my - 190);
-ctx.lineTo(mx - 68, my - 130);
-ctx.lineTo(mx - 44, my - 120);
-ctx.lineTo(mx - 30, my - 138);
-ctx.lineTo(mx - 10, my - 120);
-ctx.lineTo(mx + 8, my - 130);
-ctx.closePath();
-ctx.fill(); ctx.stroke();
-var tx = screenX + 340;
-var ty = h * 0.42;
-ctx.fillStyle = zone.tentColor;
-ctx.beginPath();
-ctx.moveTo(tx - 65, ty);
-ctx.lineTo(tx, ty - 75);
-ctx.lineTo(tx + 65, ty);
-ctx.closePath();
-ctx.fill(); ctx.stroke();
-ctx.fillStyle = zone.accent;
-ctx.beginPath();
-ctx.moveTo(tx - 22, ty);
-ctx.lineTo(tx, ty - 75);
-ctx.lineTo(tx + 22, ty);
-ctx.closePath();
-ctx.fill(); ctx.stroke();
-drawBuntingFlags(ctx, mx - 20, my - 120, tx + 160, ty - 45, 8);
-if (wrappedIdx === 0) {
-drawCarnivalMasks(ctx, screenX + 470, h * 0.56, 1.35);
-} else if (wrappedIdx === 1) {
-drawCuteBunny(ctx, screenX + 470, h * 0.56, 1.25);
-} else {
-fillStrokeRoundRect(ctx, screenX + 450, h * 0.53, 38, 38, 8, zone.accent, "#222222", 3);
-}
-drawCuteCrab(ctx, screenX + 580 + Math.sin(time * 2 + zIdx) * 20, h * 0.63, 1.0);
-drawCuteFish(ctx, screenX + 670, h * 0.46 + Math.sin(time * 1.6 + zIdx) * 8, "#FF9800", -1);
-drawCuteFish(ctx, screenX + 740, h * 0.54 + Math.cos(time * 1.4 + zIdx) * 8, "#FFEB3B", 1);
-ctx.restore();
-}
-}
-var px = w * 0.44;
-var py = h * World.playerY - World.jumpZ;
-var depthScale = 0.85 + (World.playerY - 0.50) * 0.95;
-if (World.pickAnimTimer > 0) {
-depthScale *= 1.12;
-}
-drawCharacter(ctx, px, py, depthScale, World.facingBack, World.walkCycle);
-// Faixa Rosa no Topo
-var curZoneIdx = Math.floor(World.playerX / ZONE_WIDTH) % ZONES.length;
-if (curZoneIdx < 0) curZoneIdx += ZONES.length;
-var activeZone = ZONES[curZoneIdx];
-var bannerW = Math.min(340, w * 0.58);
-var bannerH = 44;
-var bx = (w - bannerW) / 2;
-var by = 12;
-ctx.save();
-ctx.fillStyle = "#D81B60";
-ctx.strokeStyle = "#222222";
-ctx.lineWidth = 3;
-ctx.beginPath();
-ctx.moveTo(bx - 22, by + 10);
-ctx.lineTo(bx + 6, by + 10);
-ctx.lineTo(bx + 6, by + bannerH + 4);
-ctx.lineTo(bx - 22, by + bannerH + 4);
-ctx.lineTo(bx - 12, by + bannerH * 0.6);
-ctx.closePath();
-ctx.fill(); ctx.stroke();
-ctx.beginPath();
-ctx.moveTo(bx + bannerW + 22, by + 10);
-ctx.lineTo(bx + bannerW - 6, by + 10);
-ctx.lineTo(bx + bannerW - 6, by + bannerH + 4);
-ctx.lineTo(bx + bannerW + 22, by + bannerH + 4);
-ctx.lineTo(bx + bannerW + 12, by + bannerH * 0.6);
-ctx.closePath();
-ctx.fill(); ctx.stroke();
-fillStrokeRoundRect(ctx, bx, by, bannerW, bannerH, 12, activeZone.ribbonColor, "#222222", 3.5);
-drawCartoonText(ctx, activeZone.name, w / 2, by + bannerH / 2, Math.min(20, bannerW * 0.062), "#FFFFFF", "#222222", 4);
-ctx.restore();
-// Controle Analógico + Botões A e B
-ctx.save();
-var jx = World.joy.baseX;
-var jy = World.joy.baseY;
-ctx.fillStyle = "rgba(255, 255, 255, 0.45)";
-ctx.strokeStyle = "rgba(34, 34, 34, 0.65)";
-ctx.lineWidth = 3;
-ctx.beginPath();
-ctx.arc(jx, jy, 60, 0, Math.PI * 2);
-ctx.fill();
-ctx.stroke();
-var armW = 34;
-var armL = 52;
-fillStrokeRoundRect(ctx, jx - armW / 2, jy - armL, armW, armL * 2, 8, "rgba(220, 230, 242, 0.78)", "#546E7A", 2.5);
-fillStrokeRoundRect(ctx, jx - armL, jy - armW / 2, armL * 2, armW, 8, "rgba(220, 230, 242, 0.78)", "#546E7A", 2.5);
-drawCartoonText(ctx, "▲", jx, jy - 34, 15, "#78909C", "#37474F", 1);
-drawCartoonText(ctx, "▼", jx, jy + 34, 15, "#78909C", "#37474F", 1);
-drawCartoonText(ctx, "◀", jx - 34, jy, 15, "#78909C", "#37474F", 1);
-drawCartoonText(ctx, "▶", jx + 34, jy, 15, "#78909C", "#37474F", 1);
-ctx.fillStyle = World.joy.active ? "#FFEB3B" : "#FFFFFF";
-ctx.strokeStyle = "#222222";
-ctx.lineWidth = 3.5;
-ctx.beginPath();
-ctx.arc(World.joy.stickX, World.joy.stickY, 24, 0, Math.PI * 2);
-ctx.fill();
-ctx.stroke();
-// Botão A Verde ("(Pegar)")
-var scaleA = World.btnA.pressed ? 0.90 : 1.0;
-ctx.save();
-ctx.translate(World.btnA.x, World.btnA.y);
-ctx.scale(scaleA, scaleA);
-ctx.fillStyle = "#66BB6A";
-ctx.strokeStyle = "#222222";
-ctx.lineWidth = 4;
-ctx.beginPath();
-ctx.arc(0, 0, World.btnA.r, 0, Math.PI * 2);
-ctx.fill();
-ctx.stroke();
-drawCartoonText(ctx, "A", 0, 1, 28, "#FFFFFF", "#222222", 5);
-ctx.restore();
-drawCartoonText(ctx, "(Pegar)", World.btnA.x, World.btnA.y + World.btnA.r + 16, 15, "#FFFFFF", "#222222", 4);
-// Botão B Rosa ("(Pular)")
-var scaleB = World.btnB.pressed ? 0.90 : 1.0;
-ctx.save();
-ctx.translate(World.btnB.x, World.btnB.y);
-ctx.scale(scaleB, scaleB);
-ctx.fillStyle = "#EC407A";
-ctx.strokeStyle = "#222222";
-ctx.lineWidth = 4;
-ctx.beginPath();
-ctx.arc(0, 0, World.btnB.r, 0, Math.PI * 2);
-ctx.fill();
-ctx.stroke();
-drawCartoonText(ctx, "B", 0, 1, 28, "#FFFFFF", "#222222", 5);
-ctx.restore();
-drawCartoonText(ctx, "(Pular)", World.btnB.x, World.btnB.y + World.btnB.r + 16, 15, "#FFFFFF", "#222222", 4);
-ctx.restore();
-}
-// ==========================================================================
-// LOOP PRINCIPAL DE ANIMAÇÃO (COMPATÍVEL COM SAFARI DO iOS 12)
-// ==========================================================================
-var reqAnimFrame = window.requestAnimationFrame ||
-window.webkitRequestAnimationFrame ||
-function(cb) { return window.setTimeout(cb, 16); };
-var lastTime = Date.now();
-var elapsed = 0;
-function resizeCanvas() {
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-if (State.screen === "PROFILE") {
-drawBackgroundHearts();
-}
-}
-window.addEventListener("resize", resizeCanvas, false);
-window.addEventListener("orientationchange", function() {
-setTimeout(resizeCanvas, 150);
-}, false);
-resizeCanvas();
-function mainLoop() {
-var now = Date.now();
-var dt = Math.min(0.05, (now - lastTime) / 1000);
-lastTime = now;
-elapsed += dt;
-var ctx = canvas.getContext("2d");
-var w = canvas.width;
-var h = canvas.height;
-if (State.screen === "MENU") {
-renderStartMenuScene(ctx, w, h, elapsed);
-} else if (State.screen === "WORLD") {
-renderIslandWorldScene(ctx, w, h, elapsed, dt);
-} else {
-ctx.clearRect(0, 0, w, h);
-}
-updateAndDrawTransition(ctx, w, h, dt);
-reqAnimFrame(mainLoop);
-}
-setScreen("MENU");
-reqAnimFrame(mainLoop);
-})();
 </script>
 </body>
 </html>
