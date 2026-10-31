@@ -1,416 +1,2025 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>IsIsland - A Ilha da Ísis</title>
-<!-- Phaser 3 CDN Otimizado -->
-<script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
-<style>
-* {
-box-sizing: border-box;
-user-select: none;
--webkit-user-select: none;
--webkit-touch-callout: none;
-}
-body {
-margin: 0;
-padding: 0;
-background: #030712;
-display: flex;
-justify-content: center;
-align-items: center;
-height: 100vh;
-overflow: hidden;
-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-}
-#game-container {
-width: 100%;
-max-width: 480px;
-height: 100%;
-max-height: 854px;
-box-shadow: 0 0 30px rgba(0, 0, 0, 0.95);
-position: relative;
-background: #87CEEB;
-}
-</style>
+  <meta charset="utf-8">
+  <title>IsIsland - Educational Adventure</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <style>
+    /* Strict cross-browser reset & iOS legacy styling */
+    * {
+      -webkit-box-sizing: border-box;
+      -moz-box-sizing: border-box;
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -khtml-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #1a1e2d;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    #game-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: -webkit-box;
+      display: -webkit-flex;
+      display: -ms-flexbox;
+      display: flex;
+      -webkit-box-align: center;
+      -webkit-align-items: center;
+      -ms-flex-align: center;
+      align-items: center;
+      -webkit-box-pack: center;
+      -webkit-justify-content: center;
+      -ms-flex-pack: center;
+      justify-content: center;
+      background: radial-gradient(circle at center, #2e3a59 0%, #111522 100%);
+    }
+    canvas {
+      display: block;
+      background-color: #70c5ce;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+      border-radius: 12px;
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
+    }
+    /* Hidden accessible input for legacy iOS virtual keyboard fallback */
+    #hidden-input {
+      position: absolute;
+      top: -100px;
+      left: -100px;
+      opacity: 0;
+      font-size: 16px; /* Prevents auto zoom in iOS */
+    }
+  </style>
 </head>
 <body>
-<div id="game-container"></div>
-<script>
-// =========================================================================
-// ARQUITETURA CENTRAL DE DADOS & ESTADO GLOBAL (ISLAND CORE v5.0)
-// =========================================================================
-const GAME_CONFIG = {
-type: Phaser.AUTO,
-parent: 'game-container',
-width: 480,
-height: 854,
-backgroundColor: '#70d6ff',
-scale: {
-mode: Phaser.Scale.FIT,
-autoCenter: Phaser.Scale.CENTER_BOTH
-},
-scene: [
-MasterBootScene,
-SplashLoaderScene,
-MainMenuScene,
-CharacterCustomizerScene,
-IslandWorldScene,
-KitchenManagerScene,
-MiniGameBurgerScene,
-MiniGamePizzaScene,
-MiniGameSweetsScene,
-SeasonalEventsScene,
-ProfileSettingsScene
-]
-};
-let gameState = {
-version: '5.0.0-mega',
-quality: 'HIGH',
-sound: true,
-player: {
-name: 'Ísis',
-gender: 'menina',
-avatarPhoto: null,
-coins: 1500,
-gems: 50,
-level: 1,
-experience: 0
-},
-inventory: {
-hats: ['Coroa Ouro', 'Laço Rosa', 'Chapéu Natalino'],
-activeHat: 'Coroa Ouro',
-tops: ['Camiseta Azul', 'Cropped Vermelho', 'Vestido Princesa'],
-activeTop: 'Camiseta Azul',
-bottoms: ['Tênis Rosa', 'Coturno', 'Sandália Festiva'],
-activeBottom: 'Tênis Rosa'
-},
-restaurants: {
-burgerIsland: { level: 1, unlocked: true },
-pizzaIsland: { level: 1, unlocked: true },
-sweetIsland: { level: 1, unlocked: false }
-}
-};
-// =========================================================================
-// MÓDULO 1: MASTER BOOT SCENE (Inicialização Segura para iOS 12)
-// =========================================================================
-class MasterBootScene extends Phaser.Scene {
-constructor() {
-super('MasterBootScene');
-}
-preload() {
-let graphics = this.make.graphics({ x: 0, y: 0, add: false });
-// Fundo de Céu Principal
-graphics.fillStyle(0x3a86ff, 1);
-graphics.fillRect(0, 0, 480, 854);
-graphics.generateTexture('tex_sky', 480, 854);
-graphics.clear();
-// Base Isométrica da Ilha Principal
-graphics.fillStyle(0x38b000, 1);
-graphics.fillEllipse(240, 440, 420, 280);
-graphics.fillStyle(0x70e000, 1);
-graphics.fillEllipse(240, 425, 370, 230);
-graphics.fillStyle(0xfde047, 1);
-graphics.fillEllipse(240, 470, 440, 140);
-graphics.generateTexture('tex_isometric_island', 480, 800);
-graphics.clear();
-// Botão Padrão Principal
-graphics.fillStyle(0xff0054, 1);
-graphics.fillRoundedRect(0, 0, 280, 70, 22);
-graphics.generateTexture('tex_btn_main', 280, 70);
-graphics.clear();
-// Botão Secundário
-graphics.fillStyle(0xffb703, 1);
-graphics.fillRoundedRect(0, 0, 190, 55, 16);
-graphics.generateTexture('tex_btn_sec', 190, 55);
-graphics.clear();
-}
-create() {
-this.scene.start('SplashLoaderScene');
-}
-}
-// =========================================================================
-// MÓDULO 2: SPLASH LOADER & AUDIO SYSTEM
-// =========================================================================
-class SplashLoaderScene extends Phaser.Scene {
-constructor() {
-super('SplashLoaderScene');
-}
-create() {
-this.add.image(240, 427, 'tex_sky');
-this.add.text(240, 320, 'ISLAND', { fontSize: '76px', fontStyle: 'bold', color: '#ffb703' }).setOrigin(0.5);
-this.add.text(240, 390, 'A Ilha Mágica da Ísis', { fontSize: '24px', fontStyle: 'bold', color: '#ffffff' }).setOrigin(0.5);
-let loadingBar = this.add.rectangle(240, 520, 320, 24, 0x000000, 0.4).setOrigin(0.5);
-let progressFill = this.add.rectangle(88, 520, 10, 16, 0x06d6a0).setOrigin(0, 0.5);
-let progress = 0;
-this.time.addEvent({
-delay: 25,
-repeat: 100,
-callback: () => {
-progress++;
-progressFill.width = (310 * progress) / 100;
-if (progress >= 100) {
-this.scene.start('MainMenuScene');
-}
-}
-});
-}
-}
-// =========================================================================
-// MÓDULO 3: MAIN MENU SCENE (Menu Principal Rico e Temático)
-// =========================================================================
-class MainMenuScene extends Phaser.Scene {
-constructor() {
-super('MainMenuScene');
-}
-create() {
-this.add.image(240, 427, 'tex_sky');
-let c1 = this.add.circle(80, 140, 50, 0xffffff, 0.85);
-let c2 = this.add.circle(400, 210, 70, 0xffffff, 0.85);
-this.tweens.add({
-targets: [c1, c2],
-x: '+= 40',
-duration: 4000,
-yoyo: true,
-repeat: -1,
-ease: 'Sine.easeInOut'
-});
-this.add.text(240, 142, 'ISLAND', { fontSize: '72px', fontStyle: 'bold', color: '#7209b7' }).setOrigin(0.5);
-this.add.text(240, 138, 'ISLAND', { fontSize: '72px', fontStyle: 'bold', color: '#ff0054' }).setOrigin(0.5);
-this.add.image(240, 440, 'tex_isometric_island').setScale(0.9);
-this.createDistrictBadge(240, 330, '👑 Reino da Ísis', 0xf72585);
-this.createDistrictBadge(130, 470, '🎄 Natal', 0x06d6a0);
-this.createDistrictBadge(350, 470, '🐰 Páscoa', 0xff0054);
-this.createDistrictBadge(240, 570, '🎉 Carnaval', 0xffb703);
-let btnStart = this.add.image(240, 690, 'tex_btn_main').setInteractive();
-this.add.text(240, 690, 'JOGAR AGORA', { fontSize: '26px', fontStyle: 'bold', color: '#ffffff' }).setOrigin(0.5);
-btnStart.on('pointerdown', () => {
-this.playAudioFeedback();
-this.scene.start('CharacterCustomizerScene');
-});
-let btnSettings = this.add.image(140, 785, 'tex_btn_sec').setInteractive();
-this.add.text(140, 785, 'Configurações', { fontSize: '18px', fontStyle: 'bold', color: '#000' }).setOrigin(0.5);
-btnSettings.on('pointerdown', () => this.scene.start('ProfileSettingsScene'));
-let btnEvents = this.add.image(340, 785, 'tex_btn_sec').setInteractive();
-this.add.text(340, 785, 'Eventos', { fontSize: '18px', fontStyle: 'bold', color: '#000' }).setOrigin(0.5);
-btnEvents.on('pointerdown', () => this.scene.start('SeasonalEventsScene'));
-}
-createDistrictBadge(x, y, label, color) {
-let badge = this.add.rectangle(x, y, 130, 42, color, 0.92).setInteractive();
-badge.setStrokeStyle(3, 0xffffff);
-this.add.text(x, y, label, { fontSize: '15px', fontStyle: 'bold', color: '#ffffff' }).setOrigin(0.5);
-}
-playAudioFeedback() {
-if (!gameState.sound) return;
-try {
-let ctx = new (window.AudioContext || window.webkitAudioContext)();
-let osc = ctx.createOscillator();
-let gain = ctx.createGain();
-osc.type = 'sine';
-osc.frequency.setValueAtTime(523.25, ctx.currentTime);
-gain.gain.setValueAtTime(0.1, ctx.currentTime);
-gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
-osc.connect(gain);
-gain.connect(ctx.destination);
-osc.start();
-osc.stop(ctx.currentTime + 0.15);
-} catch(e) {}
-}
-}
-// =========================================================================
-// MÓDULO 4: CHARACTER CUSTOMIZER SCENE (Avatar & Upload Seguro iOS 12)
-// =========================================================================
-class CharacterCustomizerScene extends Phaser.Scene {
-constructor() {
-super('CharacterCustomizerScene');
-}
-create() {
-this.add.rectangle(240, 427, 480, 854, 0xffe5ec);
-this.add.text(240, 50, 'Personalizar Personagem', { fontSize: '26px', fontStyle: 'bold', color: '#d90429' }).setOrigin(0.5);
-let btnMenina = this.add.rectangle(130, 115, 120, 45, gameState.player.gender === 'menina' ? 0xffb703 : 0xffffff).setInteractive();
-btnMenina.setStrokeStyle(3, 0xd90429);
-this.add.text(130, 115, '👧 Menina', { fontSize: '16px', fontStyle: 'bold', color: '#000' }).setOrigin(0.5);
-let btnMenino = this.add.rectangle(350, 115, 120, 45, gameState.player.gender === 'menino' ? 0xffb703 : 0xffffff).setInteractive();
-btnMenino.setStrokeStyle(3, 0x1d3557);
-this.add.text(350, 115, '👦 Menino', { fontSize: '16px', fontStyle: 'bold', color: '#000' }).setOrigin(0.5);
-btnMenina.on('pointerdown', () => {
-gameState.player.gender = 'menina';
-btnMenina.setFillStyle(0xffb703);
-btnMenino.setFillStyle(0xffffff);
-});
-btnMenino.on('pointerdown', () => {
-gameState.player.gender = 'menino';
-btnMenino.setFillStyle(0xffb703);
-btnMenina.setFillStyle(0xffffff);
-});
-let avatarBox = this.add.rectangle(240, 260, 200, 210, 0xffffff).setInteractive();
-avatarBox.setStrokeStyle(4, 0xffb703);
-let placeholder = this.add.text(240, 260, 'Avatar\n(Toque para carregar foto)', { fontSize: '14px', align: 'center', color: '#666' }).setOrigin(0.5);
-let btnUpload = this.add.rectangle(150, 395, 150, 45, 0x3a86ff).setInteractive();
-this.add.text(150, 395, 'Carregar Foto', { fontSize: '15px', fontStyle: 'bold', color: '#fff' }).setOrigin(0.5);
-let btnRemove = this.add.rectangle(330, 395, 110, 45, 0xef233c).setInteractive();
-this.add.text(330, 395, 'Remover', { fontSize: '15px', fontStyle: 'bold', color: '#fff' }).setOrigin(0.5);
-let fileInput = document.createElement('input');
-fileInput.type = 'file';
-fileInput.accept = 'image/*';
-fileInput.style.display = 'none';
-document.body.appendChild(fileInput);
-fileInput.onchange = (e) => {
-let file = e.target.files[0];
-if (file) {
-let reader = new FileReader();
-reader.onload = (event) => {
-let key = 'user_avatar_custom';
-if (this.textures.exists(key)) this.textures.remove(key);
-this.load.image(key, event.target.result);
-this.load.once('complete', () => {
-placeholder.setVisible(false);
-if (this.avatarImg) this.avatarImg.destroy();
-this.avatarImg = this.add.image(240, 260, key).setDisplaySize(160, 175);
-gameState.player.avatarPhoto = key;
-});
-this.load.start();
-};
-reader.readAsDataURL(file);
-}
-};
-btnUpload.on('pointerdown', () => fileInput.click());
-btnRemove.on('pointerdown', () => {
-if (this.avatarImg) { this.avatarImg.destroy(); this.avatarImg = null; }
-placeholder.setVisible(true);
-gameState.player.avatarPhoto = null;
-fileInput.value = '';
-});
-let nameBox = this.add.rectangle(240, 470, 320, 50, 0xffffff).setInteractive();
-nameBox.setStrokeStyle(2, 0xadb5bd);
-let nameTxt = this.add.text(240, 470, gameState.player.name, { fontSize: '20px', fontStyle: 'bold', color: '#000' }).setOrigin(0.5);
-nameBox.on('pointerdown', () => {
-let n = prompt("Digite o nome da Ísis / Jogador:", gameState.player.name);
-if (n !== null && n.trim() !== '') {
-gameState.player.name = n.trim();
-nameTxt.setText(gameState.player.name);
-}
-});
-let btnOk = this.add.image(240, 765, 'tex_btn_main').setInteractive();
-this.add.text(240, 765, 'SALVAR E ENTRAR', { fontSize: '20px', fontStyle: 'bold', color: '#fff' }).setOrigin(0.5);
-btnOk.on('pointerdown', () => {
-if (fileInput.parentNode) fileInput.parentNode.removeChild(fileInput);
-this.scene.start('IslandWorldScene');
-});
-}
-}
-// =========================================================================
-// MÓDULO 5: ISLAND WORLD SCENE (Mapa Principal Interativo)
-// =========================================================================
-class IslandWorldScene extends Phaser.Scene {
-constructor() {
-super('IslandWorldScene');
-}
-create() {
-this.add.image(240, 427, 'tex_sky');
-this.add.image(240, 440, 'tex_isometric_island').setScale(1.1);
-this.add.text(240, 55, ⁠Bem-vinda, ${gameState.player.name}!⁠, { fontSize: '24px', fontStyle: 'bold', color: '#fff', stroke: '#000', strokeThickness: 4 }).setOrigin(0.5);
-this.createNode(130, 310, '🍔 Burger Island', 0xf72585, 'MiniGameBurgerScene');
-this.createNode(350, 310, '🍕 Pizza Festival', 0x7209b7, 'MiniGamePizzaScene');
-this.createNode(240, 460, '🍦 Doce Ilha', 0x3a0ca3, 'MiniGameSweetsScene');
-this.createNode(140, 600, '🎄 Natal', 0x06d6a0, 'SeasonalEventsScene');
-this.createNode(340, 600, '🐰 Páscoa', 0xff0054, 'SeasonalEventsScene');
-this.add.rectangle(240, 105, 300, 36, 0x000000, 0.4).setStrokeStyle(2, 0xffb703);
-this.add.text(240, 105, ⁠🪙 ${gameState.player.coins}   💎 ${gameState.player.gems}   ⭐ Nível ${gameState.player.level}⁠, { fontSize: '15px', fontStyle: 'bold', color: '#ffb703' }).setOrigin(0.5);
-let btnBack = this.add.rectangle(75, 785, 110, 40, 0x222222, 0.9).setInteractive();
-this.add.text(75, 785, '⬅ Menu', { fontSize: '15px', color: '#fff' }).setOrigin(0.5);
-btnBack.on('pointerdown', () => this.scene.start('MainMenuScene'));
-}
-createNode(x, y, title, color, targetScene) {
-let circle = this.add.circle(x, y, 42, color).setInteractive();
-circle.setStrokeStyle(4, 0xffffff);
-this.add.text(x, y + 52, title, { fontSize: '13px', fontStyle: 'bold', color: '#fff', stroke: '#000', strokeThickness: 3, align: 'center' }).setOrigin(0.5);
-circle.on('pointerdown', () => {
-this.scene.start(targetScene);
-});
-}
-}
-// =========================================================================
-// MÓDULOS 6, 7, 8, 9, 10: MINIJOGOS DE CULINÁRIA & EVENTOS SAZONAIS
-// =========================================================================
-class MiniGameBurgerScene extends Phaser.Scene {
-constructor() { super('MiniGameBurgerScene'); }
-create() {
-this.add.rectangle(240, 427, 480, 854, 0xf8f9fa);
-this.add.rectangle(240, 45, 480, 70, 0xf72585);
-this.add.text(240, 40, '🍔 Burger Island', { fontSize: '24px', fontStyle: 'bold', color: '#fff' }).setOrigin(0.5);
-let score = 0;
-let scoreTxt = this.add.text(240, 200, ⁠Hambúrgueres Prontos: ${score}⁠, { fontSize: '20px', fontStyle: 'bold', color: '#333' }).setOrigin(0.5);
-let grill = this.add.rectangle(240, 360, 280, 120, 0xdda15e).setInteractive();
-grill.setStrokeStyle(3, 0xffffff);
-this.add.text(240, 360, '🔥 Toque para Grelhar!', { fontSize: '18px', fontStyle: 'bold', color: '#fff' }).setOrigin(0.5);
-grill.on('pointerdown', () => {
-score++;
-gameState.player.coins += 10;
-scoreTxt.setText(⁠Hambúrgueres Prontos: ${score}⁠);
-this.tweens.add({ targets: grill, scale: 1.05, duration: 60, yoyo: true });
-});
-let btnBack = this.add.image(240, 770, 'tex_btn_main').setInteractive();
-this.add.text(240, 770, 'VOLTAR PARA A ILHA', { fontSize: '18px', fontStyle: 'bold', color: '#fff' }).setOrigin(0.5);
-btnBack.on('pointerdown', () => this.scene.start('IslandWorldScene'));
-}
-}
-class MiniGamePizzaScene extends Phaser.Scene {
-constructor() { super('MiniGamePizzaScene'); }
-create() {
-this.add.rectangle(240, 427, 480, 854, 0xf8f9fa);
-this.add.rectangle(240, 45, 480, 70, 0x7209b7);
-this.add.text(240, 40, '🍕 Pizza Festival', { fontSize: '24px', fontStyle: 'bold', color: '#fff' }).setOrigin(0.5);
-this.add.text(240, 250, 'Monte a pizza perfeita!', { fontSize: '18px', fontStyle: 'bold', color: '#333' }).setOrigin(0.5);
-let btnBack = this.add.image(240, 770, 'tex_btn_main').setInteractive();
-this.add.text(240, 770, 'VOLTAR PARA A ILHA', { fontSize: '18px', fontStyle: 'bold', color: '#fff' }).setOrigin(0.5);
-btnBack.on('pointerdown', () => this.scene.start('IslandWorldScene'));
-}
-}
-class MiniGameSweetsScene extends Phaser.Scene {
-constructor() { super('MiniGameSweetsScene'); }
-create() {
-this.add.rectangle(240, 427, 480, 854, 0xf8f9fa);
-this.add.rectangle(240, 45, 480, 70, 0x3a0ca3);
-this.add.text(240, 40, '🍦 Doce Ilha', { fontSize: '24px', fontStyle: 'bold', color: '#fff' }).setOrigin(0.5);
-this.add.text(240, 250, 'Crie sobremesas incríveis!', { fontSize: '18px', fontStyle: 'bold', color: '#333' }).setOrigin(0.5);
-let btnBack = this.add.image(240, 770, 'tex_btn_main').setInteractive();
-this.add.text(240, 770, 'VOLTAR PARA A ILHA', { fontSize: '18px', fontStyle: 'bold', color: '#fff' }).setOrigin(0.5);
-btnBack.on('pointerdown', () => this.scene.start('IslandWorldScene'));
-}
-}
-class SeasonalEventsScene extends Phaser.Scene {
-constructor() { super('SeasonalEventsScene'); }
-create() {
-this.add.rectangle(240, 427, 480, 854, 0x0d1b2a);
-this.add.text(240, 80, 'Eventos Especiais', { fontSize: '28px', fontStyle: 'bold', color: '#06d6a0' }).setOrigin(0.5);
-this.add.text(240, 250, '🎄 Natal, 🐰 Páscoa & 🎉 Carnaval\nConteúdos sazonais ativos!', { fontSize: '16px', color: '#fff', align: 'center' }).setOrigin(0.5);
-let btnBack = this.add.image(240, 770, 'tex_btn_main').setInteractive();
-this.add.text(240, 770, 'VOLTAR', { fontSize: '18px', fontStyle: 'bold', color: '#fff' }).setOrigin(0.5);
-btnBack.on('pointerdown', () => this.scene.start('MainMenuScene'));
-}
-}
-class ProfileSettingsScene extends Phaser.Scene {
-constructor() { super('ProfileSettingsScene'); }
-create() {
-this.add.rectangle(240, 427, 480, 854, 0xf8f9fa);
-this.add.text(240, 80, 'Configurações', { fontSize: '28px', fontStyle: 'bold', color: '#1d3557' }).setOrigin(0.5);
-let btnSoundToggle = this.add.rectangle(240, 250, 280, 50, 0x4361ee).setInteractive();
-let soundTxt = this.add.text(240, 250, ⁠Som: ${gameState.sound ? 'LIGADO' : 'DESLIGADO'}⁠, { fontSize: '18px', fontStyle: 'bold', color: '#fff' }).setOrigin(0.5);
-btnSoundToggle.on('pointerdown', () => {
-gameState.sound = !gameState.sound;
-soundTxt.setText(⁠Som: ${gameState.sound ? 'LIGADO' : 'DESLIGADO'}⁠);
-});
-let btnBack = this.add.image(240, 770, 'tex_btn_main').setInteractive();
-this.add.text(240, 770, 'VOLTAR', { fontSize: '18px', fontStyle: 'bold', color: '#fff' }).setOrigin(0.5);
-btnBack.on('pointerdown', () => this.scene.start('MainMenuScene'));
-}
-}
-// Inicialização Global
-window.onload = function() {
-new Phaser.Game(GAME_CONFIG);
-};
-</script>
+  <div id="game-container">
+    <canvas id="gameCanvas" width="480" height="854"></canvas>
+    <input type="text" id="hidden-input" maxlength="12" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+  </div>
+
+  <script>
+    /* =====================================================================
+       IsIsland: ES5 Pure Vanilla Engine & Game Framework
+       Strictly written without modern ES6+ features for iOS 12 Safari.
+       ===================================================================== */
+    (function () {
+      'use strict';
+
+      // -------------------------------------------------------------
+      // 1. AUDIO SYNTHESIS ENGINE (Web Audio API with iOS unlocking)
+      // -------------------------------------------------------------
+      var AudioEngine = (function () {
+        var ctx = null;
+        var isMuted = false;
+
+        function getContext() {
+          if (!ctx) {
+            var AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (AudioCtx) {
+              ctx = new AudioCtx();
+            }
+          }
+          if (ctx && ctx.state === 'suspended') {
+            ctx.resume();
+          }
+          return ctx;
+        }
+
+        // Unlock audio on early touch events
+        function unlock() {
+          var c = getContext();
+          if (c) {
+            var buffer = c.createBuffer(1, 1, 22050);
+            var source = c.createBufferSource();
+            source.buffer = buffer;
+            source.connect(c.destination);
+            if (source.start) {
+              source.start(0);
+            } else if (source.noteOn) {
+              source.noteOn(0);
+            }
+          }
+        }
+
+        function playTone(freq, type, duration, delay) {
+          if (isMuted) return;
+          var c = getContext();
+          if (!c) return;
+          delay = delay || 0;
+          try {
+            var osc = c.createOscillator();
+            var gain = c.createGain();
+            osc.type = type || 'sine';
+            osc.frequency.setValueAtTime(freq, c.currentTime + delay);
+
+            gain.gain.setValueAtTime(0.2, c.currentTime + delay);
+            gain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + delay + duration);
+
+            osc.connect(gain);
+            gain.connect(c.destination);
+
+            if (osc.start) {
+              osc.start(c.currentTime + delay);
+              osc.stop(c.currentTime + delay + duration);
+            } else if (osc.noteOn) {
+              osc.noteOn(c.currentTime + delay);
+              osc.noteOff(c.currentTime + delay + duration);
+            }
+          } catch (e) {
+            // Audio context failed or unavailable
+          }
+        }
+
+        return {
+          unlock: unlock,
+          toggleMute: function () {
+            isMuted = !isMuted;
+            return isMuted;
+          },
+          isMuted: function () {
+            return isMuted;
+          },
+          playClick: function () {
+            playTone(600, 'triangle', 0.08);
+          },
+          playSuccess: function () {
+            playTone(523.25, 'sine', 0.1, 0);     // C5
+            playTone(659.25, 'sine', 0.1, 0.08);  // E5
+            playTone(783.99, 'sine', 0.2, 0.16);  // G5
+            playTone(1046.50, 'sine', 0.35, 0.24); // C6
+          },
+          playPop: function () {
+            playTone(320, 'sine', 0.04);
+            playTone(880, 'sine', 0.08, 0.02);
+          },
+          playNote: function (hz) {
+            playTone(hz, 'triangle', 0.35);
+          },
+          playWhistle: function () {
+            playTone(900, 'sine', 0.15, 0);
+            playTone(1200, 'sine', 0.2, 0.1);
+          },
+          playSplat: function () {
+            playTone(180, 'square', 0.12);
+          }
+        };
+      })();
+
+      // -------------------------------------------------------------
+      // 2. GLOBAL STATE & PERSISTENCE
+      // -------------------------------------------------------------
+      var STORAGE_KEY = 'isisland_state_v1';
+      var state = {
+        name: 'Adventurer',
+        passkey: '1234',
+        coins: 100,
+        stars: 12,
+        currentScene: 'LOGIN',
+        wardrobe: {
+          skin: '#ffd4b2',
+          hair: '#5c3a21',
+          hairStyle: 0, // 0: short, 1: curly, 2: crown/buns
+          dress: '#ff6f91',
+          dressStyle: 0, // 0: casual, 1: chef apron, 2: party gown
+          accessory: 1 // 0: none, 1: party hat, 2: chef hat, 3: glasses
+        },
+        scores: {}
+      };
+
+      function loadStorage() {
+        try {
+          var raw = window.localStorage.getItem(STORAGE_KEY);
+          if (raw) {
+            var data = JSON.parse(raw);
+            for (var key in data) {
+              if (data.hasOwnProperty(key)) {
+                state[key] = data[key];
+              }
+            }
+          }
+        } catch (e) {
+          // localStorage disabled or private browsing quota
+        }
+      }
+
+      function saveStorage() {
+        try {
+          window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch (e) {}
+      }
+
+      loadStorage();
+
+      // -------------------------------------------------------------
+      // 3. CANVAS SETUP & SCALING (480 x 854 Portrait)
+      // -------------------------------------------------------------
+      var V_WIDTH = 480;
+      var V_HEIGHT = 854;
+
+      var canvas = document.getElementById('gameCanvas');
+      var ctx = canvas.getContext('2d');
+      var hiddenInput = document.getElementById('hidden-input');
+
+      var scale = 1;
+      var offsetX = 0;
+      var offsetY = 0;
+
+      function resizeCanvas() {
+        var winW = window.innerWidth;
+        var winH = window.innerHeight;
+
+        var scaleX = winW / V_WIDTH;
+        var scaleY = winH / V_HEIGHT;
+        scale = Math.min(scaleX, scaleY);
+
+        var finalW = Math.floor(V_WIDTH * scale);
+        var finalH = Math.floor(V_HEIGHT * scale);
+
+        canvas.style.width = finalW + 'px';
+        canvas.style.height = finalH + 'px';
+
+        var rect = canvas.getBoundingClientRect();
+        offsetX = rect.left;
+        offsetY = rect.top;
+      }
+
+      window.addEventListener('resize', resizeCanvas, false);
+      window.addEventListener('orientationchange', resizeCanvas, false);
+      resizeCanvas();
+
+      // -------------------------------------------------------------
+      // 4. TOUCH & POINTER NORMALIZER (iOS 12 touch handling)
+      // -------------------------------------------------------------
+      var input = {
+        x: 0,
+        y: 0,
+        isDown: false,
+        justPressed: false,
+        justReleased: false
+      };
+
+      function updateCoords(clientX, clientY) {
+        var rect = canvas.getBoundingClientRect();
+        var clientRelX = clientX - rect.left;
+        var clientRelY = clientY - rect.top;
+        input.x = clientRelX * (V_WIDTH / rect.width);
+        input.y = clientRelY * (V_HEIGHT / rect.height);
+      }
+
+      function onPointerStart(clientX, clientY) {
+        AudioEngine.unlock();
+        updateCoords(clientX, clientY);
+        input.isDown = true;
+        input.justPressed = true;
+      }
+
+      function onPointerMove(clientX, clientY) {
+        updateCoords(clientX, clientY);
+      }
+
+      function onPointerEnd() {
+        input.isDown = false;
+        input.justReleased = true;
+      }
+
+      canvas.addEventListener('touchstart', function (e) {
+        if (e.touches && e.touches.length > 0) {
+          onPointerStart(e.touches[0].clientX, e.touches[0].clientY);
+        }
+        e.preventDefault();
+      }, false);
+
+      canvas.addEventListener('touchmove', function (e) {
+        if (e.touches && e.touches.length > 0) {
+          onPointerMove(e.touches[0].clientX, e.touches[0].clientY);
+        }
+        e.preventDefault();
+      }, false);
+
+      canvas.addEventListener('touchend', function (e) {
+        onPointerEnd();
+        e.preventDefault();
+      }, false);
+
+      canvas.addEventListener('mousedown', function (e) {
+        onPointerStart(e.clientX, e.clientY);
+      }, false);
+
+      window.addEventListener('mousemove', function (e) {
+        if (input.isDown) {
+          onPointerMove(e.clientX, e.clientY);
+        }
+      }, false);
+
+      window.addEventListener('mouseup', function () {
+        if (input.isDown) {
+          onPointerEnd();
+        }
+      }, false);
+
+      // -------------------------------------------------------------
+      // 5. DRAWING & UI HELPERS (Pure ES5 Procedural Graphics)
+      // -------------------------------------------------------------
+      function fillRoundRect(c, x, y, w, h, r, fillColor, strokeColor, strokeWidth) {
+        c.save();
+        c.beginPath();
+        c.moveTo(x + r, y);
+        c.lineTo(x + w - r, y);
+        c.quadraticCurveTo(x + w, y, x + w, y + r);
+        c.lineTo(x + w, y + h - r);
+        c.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+        c.lineTo(x + r, y + h);
+        c.quadraticCurveTo(x, y + h, x, y + h - r);
+        c.lineTo(x, y + r);
+        c.quadraticCurveTo(x, y, x + r, y);
+        c.closePath();
+        if (fillColor) {
+          c.fillStyle = fillColor;
+          c.fill();
+        }
+        if (strokeColor) {
+          c.strokeStyle = strokeColor;
+          c.lineWidth = strokeWidth || 2;
+          c.stroke();
+        }
+        c.restore();
+      }
+
+      function drawButton(c, x, y, w, h, text, color, textColor, icon) {
+        var isHover = (input.x >= x && input.x <= x + w && input.y >= y && input.y <= y + h);
+        var btnColor = color || '#38b000';
+        var txtColor = textColor || '#ffffff';
+
+        // Drop shadow
+        fillRoundRect(c, x, y + 4, w, h, 14, 'rgba(0,0,0,0.25)');
+        fillRoundRect(c, x, y, w, h, 14, btnColor, '#ffffff', 2);
+
+        // Highlight sheen
+        c.save();
+        c.beginPath();
+        c.ellipse(x + w / 2, y + 8, w * 0.4, 4, 0, 0, Math.PI * 2);
+        c.fillStyle = 'rgba(255,255,255,0.35)';
+        c.fill();
+        c.restore();
+
+        c.save();
+        c.fillStyle = txtColor;
+        c.textAlign = 'center';
+        c.textBaseline = 'middle';
+        c.font = 'bold 18px -apple-system, sans-serif';
+        if (icon) {
+          c.fillText(icon + ' ' + text, x + w / 2, y + h / 2 + 1);
+        } else {
+          c.fillText(text, x + w / 2, y + h / 2 + 1);
+        }
+        c.restore();
+
+        return (isHover && input.justReleased);
+      }
+
+      function drawAvatar(c, cx, cy, scaleFactor, wardrobeData) {
+        c.save();
+        c.translate(cx, cy);
+        c.scale(scaleFactor, scaleFactor);
+
+        var skin = wardrobeData.skin;
+        var hair = wardrobeData.hair;
+        var dress = wardrobeData.dress;
+        var dStyle = wardrobeData.dressStyle;
+        var hStyle = wardrobeData.hairStyle;
+        var acc = wardrobeData.accessory;
+
+        // Shadow under feet
+        c.fillStyle = 'rgba(0, 0, 0, 0.18)';
+        c.beginPath();
+        c.ellipse(0, 85, 36, 12, 0, 0, Math.PI * 2);
+        c.fill();
+
+        // Legs / Shoes
+        c.fillStyle = '#4a3b32';
+        fillRoundRect(c, -16, 60, 10, 22, 4, '#4a3b32');
+        fillRoundRect(c, 6, 60, 10, 22, 4, '#4a3b32');
+        c.fillStyle = '#ffffff';
+        fillRoundRect(c, -18, 76, 14, 8, 3, '#222222');
+        fillRoundRect(c, 4, 76, 14, 8, 3, '#222222');
+
+        // Body / Dress
+        c.fillStyle = dress;
+        if (dStyle === 0) { // Casual T-shirt & shorts
+          fillRoundRect(c, -20, 15, 40, 36, 8, dress, '#ffffff', 1);
+          c.fillStyle = '#2b5876';
+          fillRoundRect(c, -18, 45, 36, 18, 4, '#2b5876');
+        } else if (dStyle === 1) { // Chef Coat & Apron
+          fillRoundRect(c, -22, 12, 44, 52, 8, '#ffffff', '#dddddd', 2);
+          // Red chef necktie
+          c.fillStyle = '#e63946';
+          c.beginPath();
+          c.moveTo(-6, 14);
+          c.lineTo(6, 14);
+          c.lineTo(0, 28);
+          c.closePath();
+          c.fill();
+          // Apron stripes
+          c.fillStyle = dress;
+          fillRoundRect(c, -18, 36, 36, 26, 4, dress);
+        } else { // Festive Ballgown
+          c.beginPath();
+          c.moveTo(-16, 15);
+          c.lineTo(16, 15);
+          c.lineTo(34, 68);
+          c.lineTo(-34, 68);
+          c.closePath();
+          c.fillStyle = dress;
+          c.fill();
+          c.strokeStyle = '#ffffff';
+          c.lineWidth = 2;
+          c.stroke();
+          // Ribbon
+          c.fillStyle = '#ffd166';
+          fillRoundRect(c, -18, 28, 36, 6, 2, '#ffd166');
+        }
+
+        // Arms
+        c.fillStyle = skin;
+        fillRoundRect(c, -28, 16, 10, 32, 5, skin);
+        fillRoundRect(c, 18, 16, 10, 32, 5, skin);
+
+        // Head
+        c.fillStyle = skin;
+        c.beginPath();
+        c.arc(0, -14, 28, 0, Math.PI * 2);
+        c.fill();
+        c.strokeStyle = 'rgba(0,0,0,0.06)';
+        c.stroke();
+
+        // Eyes (blinking effect occasionally)
+        var blink = (Math.floor(Date.now() / 3000) % 10 === 0 && (Date.now() % 300 < 150));
+        c.fillStyle = '#222222';
+        if (!blink) {
+          c.beginPath();
+          c.arc(-10, -14, 3.5, 0, Math.PI * 2);
+          c.arc(10, -14, 3.5, 0, Math.PI * 2);
+          c.fill();
+          // Eye shines
+          c.fillStyle = '#ffffff';
+          c.beginPath();
+          c.arc(-11, -16, 1.2, 0, Math.PI * 2);
+          c.arc(9, -16, 1.2, 0, Math.PI * 2);
+          c.fill();
+        } else {
+          c.strokeStyle = '#222222';
+          c.lineWidth = 2;
+          c.beginPath();
+          c.moveTo(-14, -14); c.lineTo(-6, -14);
+          c.moveTo(6, -14); c.lineTo(14, -14);
+          c.stroke();
+        }
+
+        // Cheeks
+        c.fillStyle = 'rgba(255, 99, 132, 0.4)';
+        c.beginPath();
+        c.arc(-16, -7, 4.5, 0, Math.PI * 2);
+        c.arc(16, -7, 4.5, 0, Math.PI * 2);
+        c.fill();
+
+        // Cheerful Smile
+        c.strokeStyle = '#632b2b';
+        c.lineWidth = 2.2;
+        c.beginPath();
+        c.arc(0, -8, 8, 0.15 * Math.PI, 0.85 * Math.PI, false);
+        c.stroke();
+
+        // Hair Styles
+        c.fillStyle = hair;
+        if (hStyle === 0) { // Short bob / crop
+          c.beginPath();
+          c.arc(0, -22, 28, Math.PI, Math.PI * 2);
+          c.lineTo(28, -8);
+          c.quadraticCurveTo(24, 6, 18, 0);
+          c.lineTo(10, -18);
+          c.lineTo(-10, -18);
+          c.lineTo(-18, 0);
+          c.quadraticCurveTo(-24, 6, -28, -8);
+          c.closePath();
+          c.fill();
+        } else if (hStyle === 1) { // Curly locks
+          c.beginPath();
+          c.arc(0, -24, 30, Math.PI * 0.9, Math.PI * 2.1);
+          c.fill();
+          for (var i = -3; i <= 3; i++) {
+            c.beginPath();
+            c.arc(i * 10, -32, 10, 0, Math.PI * 2);
+            c.fill();
+          }
+          c.beginPath();
+          c.arc(-26, -10, 11, 0, Math.PI * 2);
+          c.arc(26, -10, 11, 0, Math.PI * 2);
+          c.fill();
+        } else { // High Bun & fringe
+          c.beginPath();
+          c.arc(0, -44, 16, 0, Math.PI * 2);
+          c.fill();
+          c.beginPath();
+          c.arc(0, -22, 29, Math.PI * 0.9, Math.PI * 2.1);
+          c.lineTo(28, -6);
+          c.lineTo(-28, -6);
+          c.closePath();
+          c.fill();
+        }
+
+        // Accessories
+        if (acc === 1) { // Party Cone Hat
+          c.fillStyle = '#ffb703';
+          c.beginPath();
+          c.moveTo(-14, -36);
+          c.lineTo(14, -36);
+          c.lineTo(0, -75);
+          c.closePath();
+          c.fill();
+          c.strokeStyle = '#e63946';
+          c.lineWidth = 3;
+          c.stroke();
+          // Pompom
+          c.fillStyle = '#e63946';
+          c.beginPath();
+          c.arc(0, -77, 6, 0, Math.PI * 2);
+          c.fill();
+        } else if (acc === 2) { // Chef Toque
+          c.fillStyle = '#f8f9fa';
+          c.beginPath();
+          c.rect(-18, -44, 36, 14);
+          c.fill();
+          c.strokeStyle = '#dcdcdc';
+          c.stroke();
+          // Puffy top
+          c.beginPath();
+          c.arc(0, -56, 18, 0, Math.PI * 2);
+          c.arc(-14, -50, 13, 0, Math.PI * 2);
+          c.arc(14, -50, 13, 0, Math.PI * 2);
+          c.fill();
+        } else if (acc === 3) { // Cool Glasses
+          c.strokeStyle = '#2b2d42';
+          c.lineWidth = 3;
+          c.strokeRect(-20, -18, 16, 10);
+          c.strokeRect(4, -18, 16, 10);
+          c.beginPath();
+          c.moveTo(-4, -13);
+          c.lineTo(4, -13);
+          c.stroke();
+        }
+
+        c.restore();
+      }
+
+      // Universal HUD bar for Game Scenes
+      function drawHUD(c, title, showBack) {
+        // Top banner
+        fillRoundRect(c, 10, 12, V_WIDTH - 20, 56, 16, 'rgba(255,255,255,0.92)', '#c5d3e8', 2);
+
+        // Sound Button
+        var soundX = V_WIDTH - 64;
+        var soundY = 18;
+        var isSoundClick = drawButton(c, soundX, soundY, 44, 44, AudioEngine.isMuted() ? '🔇' : '🔊', '#4a4e69');
+        if (isSoundClick) {
+          AudioEngine.toggleMute();
+          AudioEngine.playClick();
+        }
+
+        // Stats: Coins & Stars
+        c.font = 'bold 15px -apple-system, sans-serif';
+        c.fillStyle = '#b58300';
+        c.textAlign = 'left';
+        c.fillText('🪙 ' + state.coins, 18, 35);
+        c.fillStyle = '#7a3b8c';
+        c.fillText('⭐ ' + state.stars, 18, 55);
+
+        // Scene Title
+        c.fillStyle = '#1e293b';
+        c.font = 'bold 18px -apple-system, sans-serif';
+        c.textAlign = 'center';
+        c.fillText(title || '', V_WIDTH / 2, 42);
+
+        // Back Button
+        if (showBack) {
+          var backX = V_WIDTH - 120;
+          var backY = 18;
+          var backClick = drawButton(c, backX, backY, 50, 44, '🔙', '#e63946');
+          if (backClick) {
+            AudioEngine.playClick();
+            state.currentScene = 'OVERWORLD';
+            saveStorage();
+          }
+        }
+      }
+
+      // -------------------------------------------------------------
+      // 6. SCENE: LOGIN & PROFILE SELECTION
+      // -------------------------------------------------------------
+      var loginProfileList = ['Explorer Tim', 'Chef Bella', 'Maya Adventurer', 'Leo Spark'];
+      var selectedProfileIdx = 0;
+
+      function renderLoginScene() {
+        // Cheerful Gradient Sky
+        var grad = ctx.createLinearGradient(0, 0, 0, V_HEIGHT);
+        grad.addColorStop(0, '#56ccf2');
+        grad.addColorStop(1, '#2f80ed');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, V_WIDTH, V_HEIGHT);
+
+        // Fluffy Clouds
+        ctx.fillStyle = 'rgba(255,255,255,0.7)';
+        ctx.beginPath();
+        ctx.arc(80, 90, 45, 0, Math.PI * 2);
+        ctx.arc(130, 80, 55, 0, Math.PI * 2);
+        ctx.arc(180, 95, 40, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(380, 160, 40, 0, Math.PI * 2);
+        ctx.arc(420, 150, 50, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Game Brand Title
+        ctx.save();
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowColor = 'rgba(0,0,0,0.3)';
+        ctx.shadowBlur = 10;
+        ctx.font = '900 46px -apple-system, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('IsIsland', V_WIDTH / 2, 110);
+        ctx.font = 'bold 16px -apple-system, sans-serif';
+        ctx.fillStyle = '#fff3b0';
+        ctx.fillText('🌴 Educational Discovery Island 🎂', V_WIDTH / 2, 140);
+        ctx.restore();
+
+        // Card Container
+        var cardY = 175;
+        fillRoundRect(ctx, 24, cardY, V_WIDTH - 48, 640, 20, '#ffffff', '#e0e7ff', 3);
+
+        // Avatar Preview Box
+        fillRoundRect(ctx, V_WIDTH / 2 - 60, cardY + 20, 120, 140, 16, '#f1f5f9', '#cbd5e1', 1);
+        drawAvatar(ctx, V_WIDTH / 2, cardY + 100, 0.75, state.wardrobe);
+
+        // Customize Quick Link
+        if (drawButton(ctx, V_WIDTH / 2 - 70, cardY + 168, 140, 34, 'Wardrobe 👗', '#8338ec')) {
+          AudioEngine.playClick();
+          state.currentScene = 'WARDROBE';
+        }
+
+        // Name & Profile Selection
+        ctx.fillStyle = '#334155';
+        ctx.font = 'bold 16px -apple-system, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Select Explorer Profile:', V_WIDTH / 2, cardY + 225);
+
+        for (var i = 0; i < loginProfileList.length; i++) {
+          var py = cardY + 242 + i * 46;
+          var isCur = (state.name === loginProfileList[i]);
+          var bg = isCur ? '#3a86ff' : '#f8fafc';
+          var tx = isCur ? '#ffffff' : '#334155';
+
+          if (drawButton(ctx, 44, py, V_WIDTH - 88, 38, loginProfileList[i], bg, tx)) {
+            AudioEngine.playClick();
+            state.name = loginProfileList[i];
+            saveStorage();
+          }
+        }
+
+        // Passkey / Secret Code Display & Input Trigger
+        var passY = cardY + 440;
+        ctx.fillStyle = '#475569';
+        ctx.font = 'bold 14px -apple-system, sans-serif';
+        ctx.fillText('Island Passkey Code: [ ' + state.passkey + ' ]', V_WIDTH / 2, passY);
+
+        // Keypad buttons to change passkey for kids
+        ctx.font = 'bold 13px -apple-system, sans-serif';
+        ctx.fillText('Quick Pin:', V_WIDTH / 2, passY + 25);
+        var pinOptions = ['1234', '7777', '9999', '4321'];
+        for (var p = 0; p < pinOptions.length; p++) {
+          var px = 45 + p * 100;
+          var activePin = (state.passkey === pinOptions[p]);
+          if (drawButton(ctx, px, passY + 36, 90, 32, pinOptions[p], activePin ? '#ff006e' : '#e2e8f0', activePin ? '#fff' : '#1e293b')) {
+            AudioEngine.playClick();
+            state.passkey = pinOptions[p];
+            saveStorage();
+          }
+        }
+
+        // Enter Island Action Button
+        var enterY = cardY + 540;
+        if (drawButton(ctx, 50, enterY, V_WIDTH - 100, 60, 'ENTER ISLAND 🚀', '#38b000', '#ffffff')) {
+          AudioEngine.playSuccess();
+          state.currentScene = 'OVERWORLD';
+          saveStorage();
+        }
+      }
+
+      // -------------------------------------------------------------
+      // 7. SCENE: WARDROBE & CHARACTER CUSTOMIZER
+      // -------------------------------------------------------------
+      var skinColors = ['#ffd4b2', '#f3b784', '#c68642', '#8d5524'];
+      var hairColors = ['#222222', '#5c3a21', '#b5651d', '#e0a96d', '#d62828'];
+      var dressColors = ['#ff6f91', '#3a86ff', '#06d6a0', '#ffd166', '#8338ec', '#222222'];
+
+      function renderWardrobeScene() {
+        ctx.fillStyle = '#fceade';
+        ctx.fillRect(0, 0, V_WIDTH, V_HEIGHT);
+
+        drawHUD(ctx, 'Wardrobe Studio', false);
+
+        // Big Avatar Stage
+        fillRoundRect(ctx, 30, 80, V_WIDTH - 60, 250, 20, '#ffffff', '#e0d6ce', 2);
+        drawAvatar(ctx, V_WIDTH / 2, 240, 1.35, state.wardrobe);
+
+        var panelY = 345;
+        fillRoundRect(ctx, 20, panelY, V_WIDTH - 40, 430, 20, '#ffffff', '#ecd9cc', 2);
+
+        // Section: Hairstyle & Hair Color
+        ctx.fillStyle = '#333333';
+        ctx.font = 'bold 15px -apple-system, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText('Hairstyle & Color', 36, panelY + 30);
+
+        if (drawButton(ctx, 36, panelY + 40, 110, 36, 'Style: #' + (state.wardrobe.hairStyle + 1), '#457b9d')) {
+          AudioEngine.playClick();
+          state.wardrobe.hairStyle = (state.wardrobe.hairStyle + 1) % 3;
+          saveStorage();
+        }
+
+        for (var h = 0; h < hairColors.length; h++) {
+          var hx = 160 + h * 46;
+          var isHCur = (state.wardrobe.hair === hairColors[h]);
+          fillRoundRect(ctx, hx, panelY + 40, 36, 36, 8, hairColors[h], isHCur ? '#ffffff' : '#aaaaaa', isHCur ? 3 : 1);
+          if (input.justReleased && input.x >= hx && input.x <= hx + 36 && input.y >= panelY + 40 && input.y <= panelY + 76) {
+            AudioEngine.playClick();
+            state.wardrobe.hair = hairColors[h];
+            saveStorage();
+          }
+        }
+
+        // Section: Skin Tone
+        ctx.fillText('Skin Tone', 36, panelY + 110);
+        for (var s = 0; s < skinColors.length; s++) {
+          var sx = 36 + s * 60;
+          var isSCur = (state.wardrobe.skin === skinColors[s]);
+          fillRoundRect(ctx, sx, panelY + 120, 48, 38, 8, skinColors[s], isSCur ? '#333' : '#bbb', isSCur ? 3 : 1);
+          if (input.justReleased && input.x >= sx && input.x <= sx + 48 && input.y >= panelY + 120 && input.y <= panelY + 158) {
+            AudioEngine.playClick();
+            state.wardrobe.skin = skinColors[s];
+            saveStorage();
+          }
+        }
+
+        // Section: Dress & Costume
+        ctx.fillText('Outfit & Color', 36, panelY + 190);
+        var outfitNames = ['Casual', 'Chef Apron', 'Gown'];
+        if (drawButton(ctx, 36, panelY + 200, 130, 36, outfitNames[state.wardrobe.dressStyle], '#e76f51')) {
+          AudioEngine.playClick();
+          state.wardrobe.dressStyle = (state.wardrobe.dressStyle + 1) % 3;
+          saveStorage();
+        }
+
+        for (var d = 0; d < dressColors.length; d++) {
+          var dx = 175 + d * 40;
+          var isDCur = (state.wardrobe.dress === dressColors[d]);
+          fillRoundRect(ctx, dx, panelY + 200, 32, 36, 6, dressColors[d], isDCur ? '#000' : '#ddd', isDCur ? 3 : 1);
+          if (input.justReleased && input.x >= dx && input.x <= dx + 32 && input.y >= panelY + 200 && input.y <= panelY + 236) {
+            AudioEngine.playClick();
+            state.wardrobe.dress = dressColors[d];
+            saveStorage();
+          }
+        }
+
+        // Section: Accessories
+        ctx.fillText('Accessory / Hat', 36, panelY + 270);
+        var accNames = ['None', 'Party Hat', 'Chef Toque', 'Glasses'];
+        for (var a = 0; a < accNames.length; a++) {
+          var ax = 34 + (a % 2) * 205;
+          var ay = panelY + 285 + Math.floor(a / 2) * 44;
+          var isACur = (state.wardrobe.accessory === a);
+          if (drawButton(ctx, ax, ay, 195, 36, accNames[a], isACur ? '#ff006e' : '#f1f5f9', isACur ? '#ffffff' : '#333333')) {
+            AudioEngine.playClick();
+            state.wardrobe.accessory = a;
+            saveStorage();
+          }
+        }
+
+        // Bottom Done Button
+        if (drawButton(ctx, 50, panelY + 375, V_WIDTH - 100, 48, 'SAVE & RETURN 🌟', '#38b000', '#ffffff')) {
+          AudioEngine.playSuccess();
+          state.currentScene = 'LOGIN';
+          saveStorage();
+        }
+      }
+
+      // -------------------------------------------------------------
+      // 8. SCENE: ISLAND OVERWORLD MAP
+      // -------------------------------------------------------------
+      var islandDistricts = [
+        { id: 'FESTIVE_HUB', name: 'Festive District 🎉', sub: 'Birthday Party Bash (5 Games)', x: 140, y: 310, color: '#ff4d6d' },
+        { id: 'CHEF_HUB', name: 'Culinary Island 🍳', sub: 'Chef Cook-off & Snacks (5 Games)', x: 340, y: 440, color: '#f77f00' },
+        { id: 'CASTLE', name: 'Wisdom Castle 🏰', sub: 'Royal Library & Hall', x: 240, y: 200, color: '#4361ee' },
+        { id: 'BEACH', name: 'Coral Beach 🏖️', sub: 'Relaxation & Seaside Seashells', x: 160, y: 620, color: '#06d6a0' }
+      ];
+
+      function renderOverworldScene() {
+        // Ocean backdrop
+        var seaGrad = ctx.createLinearGradient(0, 0, 0, V_HEIGHT);
+        seaGrad.addColorStop(0, '#00b4d8');
+        seaGrad.addColorStop(0.5, '#0077b6');
+        seaGrad.addColorStop(1, '#023e8a');
+        ctx.fillStyle = seaGrad;
+        ctx.fillRect(0, 0, V_WIDTH, V_HEIGHT);
+
+        // Animated ocean waves
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+        ctx.lineWidth = 3;
+        var waveOffset = (Date.now() / 600) % 40;
+        for (var w = 100; w < V_HEIGHT; w += 90) {
+          ctx.beginPath();
+          ctx.moveTo(0, w + Math.sin(w + waveOffset) * 8);
+          ctx.bezierCurveTo(150, w - 15, 300, w + 15, V_WIDTH, w - 5);
+          ctx.stroke();
+        }
+
+        // Central Island Landmass
+        ctx.save();
+        ctx.fillStyle = '#e9c46a'; // sandy coast
+        ctx.beginPath();
+        ctx.ellipse(240, 430, 205, 310, 0.05, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#52b788'; // vibrant lush grass
+        ctx.beginPath();
+        ctx.ellipse(240, 430, 185, 285, 0.05, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Inland River
+        ctx.strokeStyle = '#48cae4';
+        ctx.lineWidth = 14;
+        ctx.beginPath();
+        ctx.moveTo(240, 180);
+        ctx.quadraticCurveTo(270, 340, 200, 470);
+        ctx.quadraticCurveTo(160, 560, 190, 720);
+        ctx.stroke();
+        ctx.restore();
+
+        drawHUD(ctx, 'IsIsland World Map', false);
+
+        // District Landmark Pins
+        for (var i = 0; i < islandDistricts.length; i++) {
+          var d = islandDistricts[i];
+
+          // Pulsing pin animation
+          var pulse = Math.sin(Date.now() / 250 + i) * 4;
+
+          ctx.save();
+          // Pin Base Shadow
+          ctx.fillStyle = 'rgba(0,0,0,0.25)';
+          ctx.beginPath();
+          ctx.ellipse(d.x, d.y + 24, 18, 7, 0, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Marker Pin
+          ctx.fillStyle = d.color;
+          ctx.beginPath();
+          ctx.arc(d.x, d.y + pulse, 22, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 3;
+          ctx.stroke();
+
+          // District Icon
+          ctx.fillStyle = '#ffffff';
+          ctx.font = '16px -apple-system, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText((i + 1).toString(), d.x, d.y + pulse);
+
+          // Information pill
+          fillRoundRect(ctx, d.x - 90, d.y + 30 + pulse, 180, 42, 10, 'rgba(255,255,255,0.95)', d.color, 2);
+          ctx.fillStyle = '#1e293b';
+          ctx.font = 'bold 13px -apple-system, sans-serif';
+          ctx.fillText(d.name, d.x, d.y + 44 + pulse);
+          ctx.font = '10px -apple-system, sans-serif';
+          ctx.fillStyle = '#64748b';
+          ctx.fillText(d.sub, d.x, d.y + 60 + pulse);
+          ctx.restore();
+
+          // Tap Hitbox for navigation
+          if (input.justReleased && Math.abs(input.x - d.x) < 95 && Math.abs(input.y - (d.y + 35)) < 40) {
+            AudioEngine.playClick();
+            if (d.id === 'FESTIVE_HUB') {
+              state.currentScene = 'FESTIVE_MENU';
+            } else if (d.id === 'CHEF_HUB') {
+              state.currentScene = 'CHEF_MENU';
+            } else {
+              // Quick bonus discovery interaction for Beach/Castle
+              state.coins += 10;
+              state.stars += 1;
+              AudioEngine.playSuccess();
+              saveStorage();
+            }
+          }
+        }
+
+        // Mini player avatar positioned at current location
+        drawAvatar(ctx, 240, 520, 0.45, state.wardrobe);
+
+        // Quick Profile Switcher button
+        if (drawButton(ctx, 30, V_HEIGHT - 60, 180, 44, '👤 Switch Profile', '#4a4e69')) {
+          AudioEngine.playClick();
+          state.currentScene = 'LOGIN';
+        }
+        if (drawButton(ctx, V_WIDTH - 210, V_HEIGHT - 60, 180, 44, '👗 Change Outfit', '#8338ec')) {
+          AudioEngine.playClick();
+          state.currentScene = 'WARDROBE';
+        }
+      }
+
+      // -------------------------------------------------------------
+      // 9. COMMEMORATIVE SESSION A: FESTIVE DISTRICT (5 MINIGAMES)
+      // -------------------------------------------------------------
+      var festiveGames = [
+        { id: 'GAME_A1', title: '1. Birthday Cake Decorator 🎂', desc: 'Decorate with layers, frosting & toppings!' },
+        { id: 'GAME_A2', title: '2. Balloon Pop Reflex 🎈', desc: 'Pop festive balloons before they float away!' },
+        { id: 'GAME_A3', title: '3. Gift Color Sorting 🎁', desc: 'Sort incoming gifts to matching colored boxes!' },
+        { id: 'GAME_A4', title: '4. Musical Memory Bells 🔔', desc: 'Follow the melody in order!' },
+        { id: 'GAME_A5', title: '5. Candle Blow Out 🕯️', desc: 'Extinguish all sparkling party candles!' }
+      ];
+
+      function renderFestiveMenu() {
+        ctx.fillStyle = '#ffe5ec';
+        ctx.fillRect(0, 0, V_WIDTH, V_HEIGHT);
+        drawHUD(ctx, 'Festive Birthday Bash', true);
+
+        ctx.fillStyle = '#b5179e';
+        ctx.font = 'bold 22px -apple-system, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Select a Party Activity 🎉', V_WIDTH / 2, 105);
+
+        for (var i = 0; i < festiveGames.length; i++) {
+          var gy = 135 + i * 115;
+          fillRoundRect(ctx, 24, gy, V_WIDTH - 48, 102, 16, '#ffffff', '#ffb3c1', 2);
+
+          ctx.fillStyle = '#4a0e4e';
+          ctx.font = 'bold 18px -apple-system, sans-serif';
+          ctx.textAlign = 'left';
+          ctx.fillText(festiveGames[i].title, 40, gy + 32);
+
+          ctx.fillStyle = '#7209b7';
+          ctx.font = '13px -apple-system, sans-serif';
+          ctx.fillText(festiveGames[i].desc, 40, gy + 54);
+
+          var playedScore = state.scores[festiveGames[i].id] || 0;
+          ctx.fillStyle = '#f72585';
+          ctx.font = 'bold 12px -apple-system, sans-serif';
+          ctx.fillText('High Score: ' + playedScore, 40, gy + 82);
+
+          if (drawButton(ctx, V_WIDTH - 130, gy + 45, 90, 42, 'PLAY', '#f72585', '#ffffff')) {
+            AudioEngine.playClick();
+            initFestiveGame(festiveGames[i].id);
+          }
+        }
+      }
+
+      // Minigame A1: Cake Decorator state
+      var cakeDecor = {
+        flavor: '#fcd5ce', // sponge
+        frosting: '#ffb5a7',
+        toppings: [], // array of {x, y, type}
+        selectedTopping: '🍓'
+      };
+
+      // Minigame A2: Balloon Pop Reflex state
+      var balloonGame = {
+        balloons: [],
+        score: 0,
+        timeLeft: 30,
+        lastSpawn: 0,
+        gameOver: false
+      };
+
+      // Minigame A3: Gift Sorting state
+      var giftGame = {
+        currentGift: null,
+        score: 0,
+        colors: ['#e63946', '#457b9d', '#2a9d8f']
+      };
+
+      // Minigame A4: Musical Bells Memory state
+      var bellGame = {
+        sequence: [],
+        playerStep: 0,
+        isPlayingSeq: false,
+        seqStep: 0,
+        lastTick: 0,
+        frequencies: [261.63, 329.63, 392.00, 523.25], // C, E, G, C
+        bellColors: ['#f94144', '#f8961e', '#90be6d', '#577590'],
+        score: 0
+      };
+
+      // Minigame A5: Candle Blow state
+      var candleGame = {
+        candles: [],
+        allBlown: false
+      };
+
+      function initFestiveGame(gameId) {
+        state.currentScene = gameId;
+        if (gameId === 'GAME_A1') {
+          cakeDecor.toppings = [];
+        } else if (gameId === 'GAME_A2') {
+          balloonGame.balloons = [];
+          balloonGame.score = 0;
+          balloonGame.timeLeft = 25;
+          balloonGame.lastSpawn = Date.now();
+          balloonGame.gameOver = false;
+        } else if (gameId === 'GAME_A3') {
+          giftGame.score = 0;
+          spawnGift();
+        } else if (gameId === 'GAME_A4') {
+          bellGame.sequence = [Math.floor(Math.random() * 4)];
+          bellGame.playerStep = 0;
+          bellGame.isPlayingSeq = true;
+          bellGame.seqStep = 0;
+          bellGame.lastTick = Date.now();
+          bellGame.score = 0;
+        } else if (gameId === 'GAME_A5') {
+          candleGame.allBlown = false;
+          candleGame.candles = [];
+          for (var c = 0; c < 5; c++) {
+            candleGame.candles.push({ x: 100 + c * 70, y: 440, lit: true });
+          }
+        }
+      }
+
+      function spawnGift() {
+        var cIdx = Math.floor(Math.random() * 3);
+        giftGame.currentGift = {
+          colorIdx: cIdx,
+          color: giftGame.colors[cIdx],
+          x: V_WIDTH / 2 - 40,
+          y: 260,
+          isDragging: false
+        };
+      }
+
+      // Minigame A1 logic
+      function renderGameA1() {
+        ctx.fillStyle = '#fff0f3';
+        ctx.fillRect(0, 0, V_WIDTH, V_HEIGHT);
+        drawHUD(ctx, 'Cake Decorator', true);
+
+        // Cake Stand & Plate
+        ctx.fillStyle = '#e2e8f0';
+        fillRoundRect(ctx, 90, 560, 300, 24, 12, '#cbd5e1');
+        fillRoundRect(ctx, 190, 584, 100, 80, 10, '#94a3b8');
+
+        // Cake Tiers
+        fillRoundRect(ctx, 110, 420, 260, 140, 16, cakeDecor.flavor, '#d4a373', 3);
+        // Frosting drip layer
+        fillRoundRect(ctx, 110, 420, 260, 40, 16, cakeDecor.frosting);
+        // Second Tier
+        fillRoundRect(ctx, 150, 310, 180, 110, 14, cakeDecor.flavor, '#d4a373', 3);
+        fillRoundRect(ctx, 150, 310, 180, 34, 14, cakeDecor.frosting);
+
+        // Placed toppings
+        for (var i = 0; i < cakeDecor.toppings.length; i++) {
+          var top = cakeDecor.toppings[i];
+          ctx.font = '26px -apple-system, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(top.type, top.x, top.y);
+        }
+
+        // Add topping on tap on cake
+        if (input.justReleased && input.y > 310 && input.y < 560 && input.x > 110 && input.x < 370) {
+          cakeDecor.toppings.push({ x: input.x, y: input.y, type: cakeDecor.selectedTopping });
+          AudioEngine.playPop();
+          state.coins += 1;
+        }
+
+        // Palette Bar: Frosting & Topping selector
+        fillRoundRect(ctx, 20, 680, V_WIDTH - 40, 145, 18, '#ffffff', '#ffb3c1', 2);
+
+        ctx.fillStyle = '#333333';
+        ctx.font = 'bold 15px -apple-system, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText('Choose Frosting:', 36, 705);
+
+        var frostColors = ['#ffb5a7', '#cdb4db', '#bde0fe', '#ffff3f'];
+        for (var f = 0; f < frostColors.length; f++) {
+          var fx = 170 + f * 48;
+          fillRoundRect(ctx, fx, 690, 36, 26, 6, frostColors[f], cakeDecor.frosting === frostColors[f] ? '#000' : '#ddd', 2);
+          if (input.justReleased && input.x >= fx && input.x <= fx + 36 && input.y >= 690 && input.y <= 716) {
+            AudioEngine.playClick();
+            cakeDecor.frosting = frostColors[f];
+          }
+        }
+
+        ctx.fillText('Choose Topping:', 36, 755);
+        var toppingList = ['🍓', '🍒', '⭐', '🍫', '🕯️'];
+        for (var t = 0; t < toppingList.length; t++) {
+          var tx = 36 + t * 56;
+          var isTop = (cakeDecor.selectedTopping === toppingList[t]);
+          fillRoundRect(ctx, tx, 770, 48, 44, 10, isTop ? '#ffccd5' : '#f8f9fa', isTop ? '#c9184a' : '#ddd', 2);
+          ctx.font = '22px -apple-system, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(toppingList[t], tx + 24, 800);
+          if (input.justReleased && input.x >= tx && input.x <= tx + 48 && input.y >= 770 && input.y <= 814) {
+            AudioEngine.playClick();
+            cakeDecor.selectedTopping = toppingList[t];
+          }
+        }
+
+        // Clear button
+        if (drawButton(ctx, V_WIDTH - 120, 770, 85, 44, 'Clear', '#ef233c')) {
+          AudioEngine.playClick();
+          cakeDecor.toppings = [];
+        }
+      }
+
+      // Minigame A2: Balloon Pop Reflex
+      function renderGameA2() {
+        ctx.fillStyle = '#e0f2fe';
+        ctx.fillRect(0, 0, V_WIDTH, V_HEIGHT);
+        drawHUD(ctx, 'Balloon Reflex', true);
+
+        // Spawn balloons
+        var now = Date.now();
+        if (!balloonGame.gameOver && now - balloonGame.lastSpawn > 650) {
+          balloonGame.lastSpawn = now;
+          var colors = ['#f72585', '#4cc9f0', '#7209b7', '#ffb703', '#43aa8b'];
+          balloonGame.balloons.push({
+            x: 60 + Math.random() * (V_WIDTH - 120),
+            y: V_HEIGHT + 30,
+            radius: 28 + Math.random() * 12,
+            speed: 2.5 + Math.random() * 3,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            popped: false
+          });
+        }
+
+        // Update timer
+        if (!balloonGame.gameOver) {
+          balloonGame.timeLeft -= 1 / 60;
+          if (balloonGame.timeLeft <= 0) {
+            balloonGame.timeLeft = 0;
+            balloonGame.gameOver = true;
+            AudioEngine.playSuccess();
+            state.scores['GAME_A2'] = Math.max(state.scores['GAME_A2'] || 0, balloonGame.score);
+            state.stars += Math.floor(balloonGame.score / 5);
+            saveStorage();
+          }
+        }
+
+        // Draw Balloons & hit test
+        for (var b = balloonGame.balloons.length - 1; b >= 0; b--) {
+          var ball = balloonGame.balloons[b];
+          ball.y -= ball.speed;
+
+          // Draw balloon
+          ctx.save();
+          ctx.fillStyle = ball.color;
+          ctx.beginPath();
+          ctx.ellipse(ball.x, ball.y, ball.radius, ball.radius * 1.2, 0, 0, Math.PI * 2);
+          ctx.fill();
+          // Knot & string
+          ctx.fillStyle = ball.color;
+          ctx.beginPath();
+          ctx.moveTo(ball.x - 4, ball.y + ball.radius * 1.2);
+          ctx.lineTo(ball.x + 4, ball.y + ball.radius * 1.2);
+          ctx.lineTo(ball.x, ball.y + ball.radius * 1.2 + 6);
+          ctx.fill();
+          ctx.strokeStyle = '#888888';
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.moveTo(ball.x, ball.y + ball.radius * 1.2 + 6);
+          ctx.quadraticCurveTo(ball.x + 6, ball.y + ball.radius * 1.2 + 20, ball.x, ball.y + ball.radius * 1.2 + 35);
+          ctx.stroke();
+          ctx.restore();
+
+          // Check pop touch
+          if (input.justPressed && !balloonGame.gameOver) {
+            var dist = Math.sqrt((input.x - ball.x) * (input.x - ball.x) + (input.y - ball.y) * (input.y - ball.y));
+            if (dist < ball.radius * 1.2) {
+              AudioEngine.playPop();
+              balloonGame.score += 1;
+              state.coins += 2;
+              balloonGame.balloons.splice(b, 1);
+              continue;
+            }
+          }
+
+          if (ball.y < -50) {
+            balloonGame.balloons.splice(b, 1);
+          }
+        }
+
+        // Score Card Overlay
+        fillRoundRect(ctx, 30, 80, V_WIDTH - 60, 48, 12, 'rgba(255,255,255,0.9)');
+        ctx.fillStyle = '#0f172a';
+        ctx.font = 'bold 18px -apple-system, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText('Balloons: ' + balloonGame.score, 45, 110);
+        ctx.textAlign = 'right';
+        ctx.fillText('Time: ' + Math.ceil(balloonGame.timeLeft) + 's', V_WIDTH - 45, 110);
+
+        if (balloonGame.gameOver) {
+          fillRoundRect(ctx, 40, 320, V_WIDTH - 80, 200, 18, '#ffffff', '#38b000', 3);
+          ctx.fillStyle = '#1e293b';
+          ctx.font = 'bold 24px -apple-system, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText('Party Time Finished! 🎈', V_WIDTH / 2, 370);
+          ctx.font = '18px -apple-system, sans-serif';
+          ctx.fillText('Final Score: ' + balloonGame.score, V_WIDTH / 2, 410);
+
+          if (drawButton(ctx, V_WIDTH / 2 - 80, 445, 160, 48, 'Play Again 🔄', '#38b000')) {
+            initFestiveGame('GAME_A2');
+          }
+        }
+      }
+
+      // Minigame A3: Gift Sorting
+      function renderGameA3() {
+        ctx.fillStyle = '#fdf0d5';
+        ctx.fillRect(0, 0, V_WIDTH, V_HEIGHT);
+        drawHUD(ctx, 'Gift Color Sort', true);
+
+        ctx.fillStyle = '#669bbc';
+        ctx.font = 'bold 18px -apple-system, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Drag gift to matching box!', V_WIDTH / 2, 105);
+        ctx.fillText('Sorted Gifts: ' + giftGame.score, V_WIDTH / 2, 130);
+
+        // 3 Destination Boxes
+        var boxLabels = ['Ruby Red', 'Ocean Blue', 'Emerald Green'];
+        var boxY = 600;
+        for (var b = 0; b < 3; b++) {
+          var bx = 28 + b * 144;
+          fillRoundRect(ctx, bx, boxY, 134, 130, 14, giftGame.colors[b], '#ffffff', 3);
+          // Box lid line
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 4;
+          ctx.strokeRect(bx + 10, boxY + 20, 114, 10);
+          ctx.fillStyle = '#ffffff';
+          ctx.font = 'bold 14px -apple-system, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(boxLabels[b], bx + 67, boxY + 80);
+        }
+
+        // Current Gift
+        if (giftGame.currentGift) {
+          var g = giftGame.currentGift;
+
+          if (input.isDown) {
+            if (!g.isDragging) {
+              if (input.x >= g.x && input.x <= g.x + 80 && input.y >= g.y && input.y <= g.y + 80) {
+                g.isDragging = true;
+              }
+            }
+            if (g.isDragging) {
+              g.x = input.x - 40;
+              g.y = input.y - 40;
+            }
+          } else if (input.justReleased && g.isDragging) {
+            g.isDragging = false;
+            // Check box drops
+            var dropped = false;
+            for (var k = 0; k < 3; k++) {
+              var kx = 28 + k * 144;
+              if (g.x + 40 > kx && g.x + 40 < kx + 134 && g.y + 40 > boxY && g.y + 40 < boxY + 130) {
+                dropped = true;
+                if (k === g.colorIdx) {
+                  AudioEngine.playSuccess();
+                  giftGame.score += 1;
+                  state.coins += 5;
+                  state.scores['GAME_A3'] = Math.max(state.scores['GAME_A3'] || 0, giftGame.score);
+                  saveStorage();
+                  spawnGift();
+                } else {
+                  AudioEngine.playSplat();
+                  g.x = V_WIDTH / 2 - 40;
+                  g.y = 260;
+                }
+                break;
+              }
+            }
+            if (!dropped) {
+              g.x = V_WIDTH / 2 - 40;
+              g.y = 260;
+            }
+          }
+
+          // Draw Gift Box
+          fillRoundRect(ctx, g.x, g.y, 80, 80, 12, g.color, '#ffffff', 3);
+          // Golden ribbon
+          ctx.fillStyle = '#ffb703';
+          ctx.fillRect(g.x + 34, g.y, 12, 80);
+          ctx.fillRect(g.x, g.y + 34, 80, 12);
+          // Bow
+          ctx.beginPath();
+          ctx.arc(g.x + 40, g.y + 6, 12, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      // Minigame A4: Musical Bells Memory
+      function renderGameA4() {
+        ctx.fillStyle = '#edf2f4';
+        ctx.fillRect(0, 0, V_WIDTH, V_HEIGHT);
+        drawHUD(ctx, 'Memory Bells', true);
+
+        ctx.fillStyle = '#2b2d42';
+        ctx.font = 'bold 20px -apple-system, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Melody Memory Game', V_WIDTH / 2, 105);
+        ctx.font = '14px -apple-system, sans-serif';
+        ctx.fillText(bellGame.isPlayingSeq ? 'Listen to the bells...' : 'Your turn to repeat!', V_WIDTH / 2, 130);
+        ctx.fillText('Round Score: ' + bellGame.score, V_WIDTH / 2, 155);
+
+        // Sequence playback loop
+        var now = Date.now();
+        if (bellGame.isPlayingSeq && now - bellGame.lastTick > 700) {
+          bellGame.lastTick = now;
+          if (bellGame.seqStep < bellGame.sequence.length) {
+            var bellIdx = bellGame.sequence[bellGame.seqStep];
+            AudioEngine.playNote(bellGame.frequencies[bellIdx]);
+            bellGame.activeFlash = bellIdx;
+            bellGame.seqStep++;
+          } else {
+            bellGame.isPlayingSeq = false;
+            bellGame.activeFlash = -1;
+            bellGame.playerStep = 0;
+          }
+        }
+
+        // Draw 4 Large Musical Bells
+        var bellNames = ['Bell C', 'Bell E', 'Bell G', 'High C'];
+        for (var b = 0; b < 4; b++) {
+          var bx = 65 + (b % 2) * 190;
+          var by = 210 + Math.floor(b / 2) * 200;
+          var isFlash = (bellGame.activeFlash === b);
+
+          fillRoundRect(ctx, bx, by, 160, 160, 24, isFlash ? '#ffffff' : bellGame.bellColors[b], '#2b2d42', 3);
+
+          // Bell contour
+          ctx.fillStyle = isFlash ? bellGame.bellColors[b] : '#ffffff';
+          ctx.beginPath();
+          ctx.arc(bx + 80, by + 65, 36, Math.PI, 0, false);
+          ctx.lineTo(bx + 125, by + 115);
+          ctx.lineTo(bx + 35, by + 115);
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.font = 'bold 16px -apple-system, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(bellNames[b], bx + 80, by + 140);
+
+          // Player touch reaction
+          if (!bellGame.isPlayingSeq && input.justPressed) {
+            if (input.x >= bx && input.x <= bx + 160 && input.y >= by && input.y <= by + 160) {
+              AudioEngine.playNote(bellGame.frequencies[b]);
+              if (bellGame.sequence[bellGame.playerStep] === b) {
+                bellGame.playerStep++;
+                if (bellGame.playerStep >= bellGame.sequence.length) {
+                  // Passed sequence round!
+                  AudioEngine.playSuccess();
+                  bellGame.score += 1;
+                  state.coins += 4;
+                  state.scores['GAME_A4'] = Math.max(state.scores['GAME_A4'] || 0, bellGame.score);
+                  saveStorage();
+
+                  // Add next note
+                  bellGame.sequence.push(Math.floor(Math.random() * 4));
+                  bellGame.isPlayingSeq = true;
+                  bellGame.seqStep = 0;
+                  bellGame.lastTick = Date.now() + 400;
+                }
+              } else {
+                // Incorrect sequence reset
+                AudioEngine.playSplat();
+                bellGame.sequence = [Math.floor(Math.random() * 4)];
+                bellGame.isPlayingSeq = true;
+                bellGame.seqStep = 0;
+                bellGame.lastTick = Date.now();
+                bellGame.score = 0;
+              }
+            }
+          }
+        }
+      }
+
+      // Minigame A5: Candle Blow
+      function renderGameA5() {
+        ctx.fillStyle = '#1a1423';
+        ctx.fillRect(0, 0, V_WIDTH, V_HEIGHT);
+        drawHUD(ctx, 'Candle Blow Out', true);
+
+        ctx.fillStyle = '#ffcad4';
+        ctx.font = 'bold 20px -apple-system, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Tap the candles to blow them out! 🌬️', V_WIDTH / 2, 110);
+
+        // Giant Birthday Cake
+        fillRoundRect(ctx, 40, 500, V_WIDTH - 80, 180, 24, '#7b2cbf', '#e0aaff', 3);
+        fillRoundRect(ctx, 40, 500, V_WIDTH - 80, 45, 12, '#ff99c8');
+
+        var litCount = 0;
+        for (var i = 0; i < candleGame.candles.length; i++) {
+          var can = candleGame.candles[i];
+          if (can.lit) litCount++;
+
+          // Candle body
+          fillRoundRect(ctx, can.x, can.y, 24, 70, 6, '#ffffff', '#e2e8f0', 2);
+          // Wick
+          ctx.strokeStyle = '#000000';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(can.x + 12, can.y);
+          ctx.lineTo(can.x + 12, can.y - 12);
+          ctx.stroke();
+
+          // Animated flame if lit
+          if (can.lit) {
+            var flicker = Math.sin(Date.now() / 80 + i) * 3;
+            ctx.fillStyle = '#ffb703';
+            ctx.beginPath();
+            ctx.ellipse(can.x + 12 + flicker, can.y - 20, 8, 14, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#e63946';
+            ctx.beginPath();
+            ctx.ellipse(can.x + 12 + flicker, can.y - 16, 4, 8, 0, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          // Tap to blow candle
+          if (input.justPressed && can.lit) {
+            if (input.x >= can.x - 15 && input.x <= can.x + 39 && input.y >= can.y - 35 && input.y <= can.y + 70) {
+              can.lit = false;
+              AudioEngine.playWhistle();
+              state.coins += 2;
+            }
+          }
+        }
+
+        if (litCount === 0 && !candleGame.allBlown) {
+          candleGame.allBlown = true;
+          AudioEngine.playSuccess();
+          state.stars += 2;
+          state.scores['GAME_A5'] = (state.scores['GAME_A5'] || 0) + 1;
+          saveStorage();
+        }
+
+        if (candleGame.allBlown) {
+          fillRoundRect(ctx, 50, 220, V_WIDTH - 100, 160, 16, '#ffffff', '#ff006e', 3);
+          ctx.fillStyle = '#ff006e';
+          ctx.font = 'bold 22px -apple-system, sans-serif';
+          ctx.fillText('Happy Birthday! 🎉', V_WIDTH / 2, 270);
+          ctx.fillStyle = '#333333';
+          ctx.font = '16px -apple-system, sans-serif';
+          ctx.fillText('You blew out all the candles!', V_WIDTH / 2, 305);
+
+          if (drawButton(ctx, V_WIDTH / 2 - 80, 325, 160, 42, 'Light Again 🔥', '#ff006e')) {
+            initFestiveGame('GAME_A5');
+          }
+        }
+      }
+
+      // -------------------------------------------------------------
+      // 10. COMMEMORATIVE SESSION B: CULINARY CHEF ISLAND (5 MINIGAMES)
+      // -------------------------------------------------------------
+      var chefGames = [
+        { id: 'GAME_B1', title: '1. Burger Stacker 🍔', desc: 'Catch falling ingredients in the right order!' },
+        { id: 'GAME_B2', title: '2. Pizza Topper 🍕', desc: 'Craft gourmet pizzas with cheese & veggies!' },
+        { id: 'GAME_B3', title: '3. Fruit Juice Blender 🍓', desc: 'Slice flying fruits for fresh smoothies!' },
+        { id: 'GAME_B4', title: '4. Ice Cream Scooper 🍦', desc: 'Stack towering colorful ice cream cones!' },
+        { id: 'GAME_B5', title: '5. Table Order Serving 🍽️', desc: 'Deliver correct menu dishes to hungry patrons!' }
+      ];
+
+      function renderChefMenu() {
+        ctx.fillStyle = '#fff3cd';
+        ctx.fillRect(0, 0, V_WIDTH, V_HEIGHT);
+        drawHUD(ctx, 'Culinary Chef Island', true);
+
+        ctx.fillStyle = '#b05900';
+        ctx.font = 'bold 22px -apple-system, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Chef Kitchen Stations 🍳', V_WIDTH / 2, 105);
+
+        for (var i = 0; i < chefGames.length; i++) {
+          var gy = 135 + i * 115;
+          fillRoundRect(ctx, 24, gy, V_WIDTH - 48, 102, 16, '#ffffff', '#ffeaa7', 2);
+
+          ctx.fillStyle = '#7a3e00';
+          ctx.font = 'bold 18px -apple-system, sans-serif';
+          ctx.textAlign = 'left';
+          ctx.fillText(chefGames[i].title, 40, gy + 32);
+
+          ctx.fillStyle = '#856404';
+          ctx.font = '13px -apple-system, sans-serif';
+          ctx.fillText(chefGames[i].desc, 40, gy + 54);
+
+          var score = state.scores[chefGames[i].id] || 0;
+          ctx.fillStyle = '#d97706';
+          ctx.font = 'bold 12px -apple-system, sans-serif';
+          ctx.fillText('High Score: ' + score, 40, gy + 82);
+
+          if (drawButton(ctx, V_WIDTH - 130, gy + 45, 90, 42, 'COOK', '#d97706', '#ffffff')) {
+            AudioEngine.playClick();
+            initChefGame(chefGames[i].id);
+          }
+        }
+      }
+
+      // Minigame B1: Burger Stacker
+      var burgerGame = {
+        burgerLayers: [],
+        fallingItems: [],
+        plateX: V_WIDTH / 2 - 50,
+        score: 0,
+        lastSpawn: 0
+      };
+
+      // Minigame B2: Pizza Topper
+      var pizzaGame = {
+        toppings: [],
+        sauce: '#d62828',
+        selectedTopping: '🍄'
+      };
+
+      // Minigame B3: Fruit Blender
+      var blenderGame = {
+        fruits: [],
+        slicedCount: 0,
+        juiceLevel: 0
+      };
+
+      // Minigame B4: Ice Cream Scooper
+      var iceCreamGame = {
+        scoops: [],
+        availableFlavors: ['#ffb7b2', '#b5ead7', '#e2f0cb', '#ffdac1', '#c7ceea'],
+        flavorNames: ['Strawberry', 'Mint', 'Matcha', 'Vanilla', 'Blueberry']
+      };
+
+      // Minigame B5: Table Order Serving
+      var orderGame = {
+        currentOrder: '🥗',
+        menu: ['🥗 Salad Bowl', '🍜 Ramen Soup', '🥞 Pancakes', '🌮 Crispy Taco'],
+        score: 0
+      };
+
+      function initChefGame(gameId) {
+        state.currentScene = gameId;
+        if (gameId === 'GAME_B1') {
+          burgerGame.burgerLayers = ['bun_bottom'];
+          burgerGame.fallingItems = [];
+          burgerGame.score = 0;
+          burgerGame.lastSpawn = Date.now();
+        } else if (gameId === 'GAME_B2') {
+          pizzaGame.toppings = [];
+        } else if (gameId === 'GAME_B3') {
+          blenderGame.fruits = [];
+          blenderGame.slicedCount = 0;
+          blenderGame.juiceLevel = 0;
+        } else if (gameId === 'GAME_B4') {
+          iceCreamGame.scoops = [];
+        } else if (gameId === 'GAME_B5') {
+          orderGame.score = 0;
+          nextOrder();
+        }
+      }
+
+      function nextOrder() {
+        var options = ['🥗 Salad Bowl', '🍜 Ramen Soup', '🥞 Pancakes', '🌮 Crispy Taco'];
+        orderGame.currentOrder = options[Math.floor(Math.random() * options.length)];
+      }
+
+      // Minigame B1: Burger Stacker logic
+      function renderGameB1() {
+        ctx.fillStyle = '#fff8e7';
+        ctx.fillRect(0, 0, V_WIDTH, V_HEIGHT);
+        drawHUD(ctx, 'Burger Stacker', true);
+
+        // Score Card
+        ctx.fillStyle = '#78350f';
+        ctx.font = 'bold 18px -apple-system, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText('Layers: ' + burgerGame.burgerLayers.length, 30, 95);
+
+        // Move plate via touch
+        if (input.isDown) {
+          burgerGame.plateX = input.x - 50;
+          if (burgerGame.plateX < 10) burgerGame.plateX = 10;
+          if (burgerGame.plateX > V_WIDTH - 110) burgerGame.plateX = V_WIDTH - 110;
+        }
+
+        // Spawn falling ingredient
+        var now = Date.now();
+        if (now - burgerGame.lastSpawn > 1100 && burgerGame.burgerLayers.length < 12) {
+          burgerGame.lastSpawn = now;
+          var types = ['patty', 'cheese', 'lettuce', 'tomato'];
+          burgerGame.fallingItems.push({
+            x: 40 + Math.random() * (V_WIDTH - 120),
+            y: 80,
+            speed: 3 + Math.random() * 2,
+            type: types[Math.floor(Math.random() * types.length)]
+          });
+        }
+
+        // Draw and update falling items
+        for (var f = burgerGame.fallingItems.length - 1; f >= 0; f--) {
+          var item = burgerGame.fallingItems[f];
+          item.y += item.speed;
+
+          // Render item
+          var itemColor = '#8d5b4c';
+          if (item.type === 'cheese') itemColor = '#ffb703';
+          if (item.type === 'lettuce') itemColor = '#52b788';
+          if (item.type === 'tomato') itemColor = '#e63946';
+
+          fillRoundRect(ctx, item.x, item.y, 60, 16, 6, itemColor);
+
+          // Collision with top of burger stack
+          var stackTopY = 710 - burgerGame.burgerLayers.length * 14;
+          if (item.y + 16 >= stackTopY && item.y <= stackTopY + 20) {
+            if (item.x + 50 >= burgerGame.plateX && item.x <= burgerGame.plateX + 90) {
+              AudioEngine.playPop();
+              burgerGame.burgerLayers.push(item.type);
+              burgerGame.score += 10;
+              state.coins += 2;
+              burgerGame.fallingItems.splice(f, 1);
+              continue;
+            }
+          }
+
+          if (item.y > V_HEIGHT) {
+            burgerGame.fallingItems.splice(f, 1);
+          }
+        }
+
+        // Draw Plate
+        fillRoundRect(ctx, burgerGame.plateX - 15, 730, 130, 14, 7, '#94a3b8');
+
+        // Draw Stacked burger layers
+        for (var l = 0; l < burgerGame.burgerLayers.length; l++) {
+          var layerType = burgerGame.burgerLayers[l];
+          var ly = 716 - l * 14;
+          var lColor = '#e76f51';
+          if (layerType === 'patty') lColor = '#6f4e37';
+          if (layerType === 'cheese') lColor = '#fcbf49';
+          if (layerType === 'lettuce') lColor = '#2a9d8f';
+          if (layerType === 'tomato') lColor = '#d62828';
+          fillRoundRect(ctx, burgerGame.plateX, ly, 100, 14, 5, lColor);
+        }
+
+        // Finish burger button
+        if (burgerGame.burgerLayers.length >= 4) {
+          if (drawButton(ctx, V_WIDTH / 2 - 80, 770, 160, 48, 'Serve Burger 🍔', '#38b000')) {
+            AudioEngine.playSuccess();
+            state.scores['GAME_B1'] = Math.max(state.scores['GAME_B1'] || 0, burgerGame.score);
+            state.stars += 2;
+            saveStorage();
+            initChefGame('GAME_B1');
+          }
+        }
+      }
+
+      // Minigame B2: Pizza Topper logic
+      function renderGameB2() {
+        ctx.fillStyle = '#fff1e6';
+        ctx.fillRect(0, 0, V_WIDTH, V_HEIGHT);
+        drawHUD(ctx, 'Pizza Gourmet', true);
+
+        // Crust & Sauce
+        ctx.fillStyle = '#dda15e';
+        ctx.beginPath();
+        ctx.arc(V_WIDTH / 2, 420, 170, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = pizzaGame.sauce;
+        ctx.beginPath();
+        ctx.arc(V_WIDTH / 2, 420, 150, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Cheese coat
+        ctx.fillStyle = 'rgba(255, 230, 109, 0.85)';
+        ctx.beginPath();
+        ctx.arc(V_WIDTH / 2, 420, 135, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Render toppings
+        for (var p = 0; p < pizzaGame.toppings.length; p++) {
+          var top = pizzaGame.toppings[p];
+          ctx.font = '28px -apple-system, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(top.type, top.x, top.y);
+        }
+
+        // Tap pizza to place topping
+        if (input.justReleased && input.y > 270 && input.y < 570) {
+          var dist = Math.sqrt((input.x - V_WIDTH / 2) * (input.x - V_WIDTH / 2) + (input.y - 420) * (input.y - 420));
+          if (dist < 135) {
+            AudioEngine.playPop();
+            pizzaGame.toppings.push({ x: input.x, y: input.y, type: pizzaGame.selectedTopping });
+            state.coins += 1;
+          }
+        }
+
+        // Topping selector panel
+        fillRoundRect(ctx, 24, 680, V_WIDTH - 48, 140, 16, '#ffffff', '#ddb892', 2);
+        ctx.fillStyle = '#582f0e';
+        ctx.font = 'bold 16px -apple-system, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText('Select Topping Ingredient:', 40, 710);
+
+        var topOptions = ['🍄', '🫒', '🧅', '🍅', '🌿', '🧀'];
+        for (var t = 0; t < topOptions.length; t++) {
+          var tx = 40 + t * 68;
+          var isCur = (pizzaGame.selectedTopping === topOptions[t]);
+          fillRoundRect(ctx, tx, 730, 56, 50, 10, isCur ? '#ffcad4' : '#f8f9fa', isCur ? '#b05900' : '#ddd', 2);
+          ctx.font = '24px -apple-system, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(topOptions[t], tx + 28, 764);
+
+          if (input.justReleased && input.x >= tx && input.x <= tx + 56 && input.y >= 730 && input.y <= 780) {
+            AudioEngine.playClick();
+            pizzaGame.selectedTopping = topOptions[t];
+          }
+        }
+
+        if (drawButton(ctx, V_WIDTH / 2 - 80, 620, 160, 42, 'Bake Pizza 🍕', '#d97706')) {
+          AudioEngine.playSuccess();
+          state.stars += 1;
+          saveStorage();
+          pizzaGame.toppings = [];
+        }
+      }
+
+      // Minigame B3: Fruit Juice Blender
+      function renderGameB3() {
+        ctx.fillStyle = '#f0fff4';
+        ctx.fillRect(0, 0, V_WIDTH, V_HEIGHT);
+        drawHUD(ctx, 'Juice Blender', true);
+
+        // Blender Pitcher
+        ctx.fillStyle = 'rgba(255,255,255,0.7)';
+        fillRoundRect(ctx, V_WIDTH / 2 - 90, 320, 180, 240, 16, '#ffffff', '#48cae4', 3);
+
+        // Liquid in pitcher
+        if (blenderGame.juiceLevel > 0) {
+          var liquidH = Math.min(blenderGame.juiceLevel * 14, 210);
+          fillRoundRect(ctx, V_WIDTH / 2 - 82, 320 + (230 - liquidH), 164, liquidH, 8, '#ff4d6d');
+        }
+
+        ctx.fillStyle = '#065f46';
+        ctx.font = 'bold 18px -apple-system, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Slice the flying fruits! 🍉', V_WIDTH / 2, 105);
+        ctx.fillText('Juice Pitcher: ' + Math.min(blenderGame.juiceLevel * 10, 100) + '%', V_WIDTH / 2, 130);
+
+        // Spawn fruits
+        if (Math.random() < 0.04 && blenderGame.fruits.length < 5) {
+          var fTypes = ['🍉', '🍓', '🍌', '🍍', '🍊'];
+          blenderGame.fruits.push({
+            x: 60 + Math.random() * (V_WIDTH - 120),
+            y: V_HEIGHT - 60,
+            vx: (Math.random() - 0.5) * 3,
+            vy: -8 - Math.random() * 4,
+            type: fTypes[Math.floor(Math.random() * fTypes.length)],
+            sliced: false
+          });
+        }
+
+        // Draw and update fruits
+        for (var i = blenderGame.fruits.length - 1; i >= 0; i--) {
+          var fr = blenderGame.fruits[i];
+          fr.x += fr.vx;
+          fr.y += fr.vy;
+          fr.vy += 0.25; // gravity
+
+          ctx.font = '36px -apple-system, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(fr.type, fr.x, fr.y);
+
+          // Touch slice interaction
+          if (input.isDown) {
+            var fDist = Math.sqrt((input.x - fr.x) * (input.x - fr.x) + (input.y - fr.y) * (input.y - fr.y));
+            if (fDist < 36) {
+              AudioEngine.playPop();
+              blenderGame.slicedCount++;
+              blenderGame.juiceLevel++;
+              state.coins += 2;
+              blenderGame.fruits.splice(i, 1);
+              continue;
+            }
+          }
+
+          if (fr.y > V_HEIGHT + 30) {
+            blenderGame.fruits.splice(i, 1);
+          }
+        }
+
+        // Blend Button
+        if (blenderGame.juiceLevel >= 8) {
+          if (drawButton(ctx, V_WIDTH / 2 - 90, 600, 180, 50, 'Blend Smoothie! 🥤', '#059669')) {
+            AudioEngine.playSuccess();
+            state.stars += 2;
+            state.scores['GAME_B3'] = (state.scores['GAME_B3'] || 0) + 1;
+            saveStorage();
+            blenderGame.juiceLevel = 0;
+          }
+        }
+      }
+
+      // Minigame B4: Ice Cream Scooper logic
+      function renderGameB4() {
+        ctx.fillStyle = '#e8f0fe';
+        ctx.fillRect(0, 0, V_WIDTH, V_HEIGHT);
+        drawHUD(ctx, 'Ice Cream Scooper', true);
+
+        ctx.fillStyle = '#1e3a8a';
+        ctx.font = 'bold 18px -apple-system, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Tap flavors to build your tower! 🍦', V_WIDTH / 2, 105);
+        ctx.fillText('Tower Scoops: ' + iceCreamGame.scoops.length, V_WIDTH / 2, 130);
+
+        // Waffle Cone at bottom
+        ctx.fillStyle = '#e0a96d';
+        ctx.beginPath();
+        ctx.moveTo(V_WIDTH / 2 - 35, 620);
+        ctx.lineTo(V_WIDTH / 2 + 35, 620);
+        ctx.lineTo(V_WIDTH / 2, 720);
+        ctx.closePath();
+        ctx.fill();
+
+        // Crosshatch on waffle cone
+        ctx.strokeStyle = '#c4894d';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        // Stacked Scoops
+        for (var s = 0; s < iceCreamGame.scoops.length; s++) {
+          var scY = 590 - s * 34;
+          fillRoundRect(ctx, V_WIDTH / 2 - 45, scY, 90, 48, 24, iceCreamGame.scoops[s], '#ffffff', 2);
+        }
+
+        // Flavor Scooper options
+        fillRoundRect(ctx, 20, 720, V_WIDTH - 40, 100, 16, '#ffffff', '#cbd5e1', 2);
+        for (var f = 0; f < iceCreamGame.availableFlavors.length; f++) {
+          var fx = 35 + f * 82;
+          fillRoundRect(ctx, fx, 735, 70, 70, 14, iceCreamGame.availableFlavors[f], '#555555', 1);
+
+          if (input.justReleased && input.x >= fx && input.x <= fx + 70 && input.y >= 735 && input.y <= 805) {
+            if (iceCreamGame.scoops.length < 10) {
+              AudioEngine.playPop();
+              iceCreamGame.scoops.push(iceCreamGame.availableFlavors[f]);
+              state.coins += 2;
+            }
+          }
+        }
+
+        if (iceCreamGame.scoops.length >= 3) {
+          if (drawButton(ctx, V_WIDTH - 120, 640, 95, 42, 'Eat! 😋', '#ff006e')) {
+            AudioEngine.playSuccess();
+            state.stars += 1;
+            iceCreamGame.scoops = [];
+            saveStorage();
+          }
+        }
+      }
+
+      // Minigame B5: Table Order Serving logic
+      function renderGameB5() {
+        ctx.fillStyle = '#faf0ca';
+        ctx.fillRect(0, 0, V_WIDTH, V_HEIGHT);
+        drawHUD(ctx, 'Restaurant Orders', true);
+
+        ctx.fillStyle = '#0d3b66';
+        ctx.font = 'bold 20px -apple-system, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Order Ticket:', V_WIDTH / 2, 110);
+
+        // Order Receipt Banner
+        fillRoundRect(ctx, 80, 130, V_WIDTH - 160, 90, 12, '#ffffff', '#f4d35e', 3);
+        ctx.fillStyle = '#e63946';
+        ctx.font = '900 24px -apple-system, sans-serif';
+        ctx.fillText(orderGame.currentOrder, V_WIDTH / 2, 185);
+
+        ctx.fillStyle = '#0d3b66';
+        ctx.font = 'bold 16px -apple-system, sans-serif';
+        ctx.fillText('Orders Served: ' + orderGame.score, V_WIDTH / 2, 255);
+
+        // Serving Tables & options
+        for (var m = 0; m < orderGame.menu.length; m++) {
+          var my = 290 + m * 88;
+          var dishName = orderGame.menu[m];
+          if (drawButton(ctx, 50, my, V_WIDTH - 100, 68, dishName, '#0d3b66', '#ffffff')) {
+            if (dishName === orderGame.currentOrder) {
+              AudioEngine.playSuccess();
+              orderGame.score += 1;
+              state.coins += 5;
+              state.scores['GAME_B5'] = Math.max(state.scores['GAME_B5'] || 0, orderGame.score);
+              saveStorage();
+              nextOrder();
+            } else {
+              AudioEngine.playSplat();
+            }
+          }
+        }
+      }
+
+      // -------------------------------------------------------------
+      // 11. SCENE DISPATCHER & MAIN TICK
+      // -------------------------------------------------------------
+      function tick() {
+        ctx.clearRect(0, 0, V_WIDTH, V_HEIGHT);
+
+        switch (state.currentScene) {
+          case 'LOGIN':
+            renderLoginScene();
+            break;
+          case 'WARDROBE':
+            renderWardrobeScene();
+            break;
+          case 'OVERWORLD':
+            renderOverworldScene();
+            break;
+          case 'FESTIVE_MENU':
+            renderFestiveMenu();
+            break;
+          case 'CHEF_MENU':
+            renderChefMenu();
+            break;
+          case 'GAME_A1':
+            renderGameA1();
+            break;
+          case 'GAME_A2':
+            renderGameA2();
+            break;
+          case 'GAME_A3':
+            renderGameA3();
+            break;
+          case 'GAME_A4':
+            renderGameA4();
+            break;
+          case 'GAME_A5':
+            renderGameA5();
+            break;
+          case 'GAME_B1':
+            renderGameB1();
+            break;
+          case 'GAME_B2':
+            renderGameB2();
+            break;
+          case 'GAME_B3':
+            renderGameB3();
+            break;
+          case 'GAME_B4':
+            renderGameB4();
+            break;
+          case 'GAME_B5':
+            renderGameB5();
+            break;
+          default:
+            renderLoginScene();
+            break;
+        }
+
+        // Reset single-frame inputs
+        input.justPressed = false;
+        input.justReleased = false;
+
+        // Legacy cross-browser animation frame request
+        var requestAnim = window.requestAnimationFrame ||
+                          window.webkitRequestAnimationFrame ||
+                          window.mozRequestAnimationFrame ||
+                          function (callback) { window.setTimeout(callback, 1000 / 60); };
+        requestAnim(tick);
+      }
+
+      // Boot application on window load
+      window.onload = function () {
+        resizeCanvas();
+        tick();
+      };
+    })();
+  </script>
 </body>
 </html>
